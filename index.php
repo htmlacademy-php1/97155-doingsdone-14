@@ -44,15 +44,27 @@ $tasks = [
 function tasks_count (array $tasks, $project_name) {
     $tasks_count = 0;
     foreach ($tasks as $task) {
-        if (in_array($project_name, $task)) {
-            $tasks_count = $tasks_count + 1;
+        if ($project_name === $task['category']) {
+            $tasks_count++;
         }
     }
     return $tasks_count;
 }
 
-$count = tasks_count($tasks, $projects[2]);
-var_dump($count);
+
+// function tasks_count (array $tasks, $project_name) {
+//     $tasks_count = 0;
+//     foreach ($tasks as $task) {
+//         if (in_array($project_name, $task)) {
+//             var_dump($tasks_count);
+//             $tasks_count = $tasks_count + 1;
+//         }
+//     }
+//     return $tasks_count;
+// }
+
+// $count = tasks_count($tasks, $projects[2]);
+// var_dump($count);
 
 ?>
 <!DOCTYPE html>
@@ -98,7 +110,7 @@ var_dump($count);
                         <?php foreach($projects as $project_name) :?>
                             <li class="main-navigation__list-item">
                                 <a class="main-navigation__list-item-link" href="#"><?=$project_name;?></a>
-                                <span class="main-navigation__list-item-count">0</span>
+                                <span class="main-navigation__list-item-count"><?= tasks_count($tasks, $project_name); ?></span>
                             </li>
                         <?php endforeach; ?>
                     </ul>
