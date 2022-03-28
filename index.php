@@ -40,6 +40,20 @@ $tasks = [
         'done' => false
     ]
 ];
+
+function tasks_count (array $tasks, $project_name) {
+    $tasks_count = 0;
+    foreach ($tasks as $task) {
+        if (in_array($project_name, $task)) {
+            $tasks_count = $tasks_count + 1;
+        }
+    }
+    return $tasks_count;
+}
+
+$count = tasks_count($tasks, $projects[2]);
+var_dump($count);
+
 ?>
 <!DOCTYPE html>
 <html lang="ru">
