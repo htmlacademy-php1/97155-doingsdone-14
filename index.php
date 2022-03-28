@@ -4,40 +4,40 @@ $show_complete_tasks = rand(0, 1);
 $projects = ["Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
 $tasks = [
     [
-    'name' => 'Собеседование в IT компании',
-    'date' => '01.12.2019',
-    'category' => 'Работа',
-    'done' => false
+        'name' => 'Собеседование в IT компании',
+        'date' => '01.12.2019',
+        'category' => 'Работа',
+        'done' => false
     ],
     [
-    'name' => 'Выполнить тестовое задание',
-    'date' => '25.12.2019',
-    'category' => 'Работа',
-    'done' => false
+        'name' => 'Выполнить тестовое задание',
+        'date' => '25.12.2019',
+        'category' => 'Работа',
+        'done' => false
     ],
     [
-    'name' => 'Сделать задание первого раздела',
-    'date' => '21.12.2019',
-    'category' => 'Учеба',
-    'done' => true
+        'name' => 'Сделать задание первого раздела',
+        'date' => '21.12.2019',
+        'category' => 'Учеба',
+        'done' => true
     ],
     [
-    'name' => 'Встреча с другом',
-    'date' => '22.12.2019',
-    'category' => 'Входящие',
-    'done' => false
+        'name' => 'Встреча с другом',
+        'date' => '22.12.2019',
+        'category' => 'Входящие',
+        'done' => false
     ],
     [
-    'name' => 'Купить корм для кота ',
-    'date' => null,
-    'category' => 'Домашние дела',
-    'done' => false
+        'name' => 'Купить корм для кота ',
+        'date' => null,
+        'category' => 'Домашние дела',
+        'done' => false
     ],
     [
-    'name' => 'Заказать пиццу',
-    'date' => null,
-    'category' => 'Домашние дела',
-    'done' => false
+        'name' => 'Заказать пиццу',
+        'date' => null,
+        'category' => 'Домашние дела',
+        'done' => false
     ]
 ];
 ?>
@@ -82,10 +82,10 @@ $tasks = [
                 <nav class="main-navigation">
                     <ul class="main-navigation__list">
                         <?php foreach($projects as $project_name) :?>
-                        <li class="main-navigation__list-item">
-                            <a class="main-navigation__list-item-link" href="#"><?=$project_name;?></a>
-                            <span class="main-navigation__list-item-count">0</span>
-                        </li>
+                            <li class="main-navigation__list-item">
+                                <a class="main-navigation__list-item-link" href="#"><?=$project_name;?></a>
+                                <span class="main-navigation__list-item-count">0</span>
+                            </li>
                         <?php endforeach; ?>
                     </ul>
                 </nav>
@@ -120,18 +120,18 @@ $tasks = [
 
                 <table class="tasks">
                     <?php foreach ($tasks as $task): ?>
-                    <?php if ($task['done'] and $show_complete_tasks === 0): continue; ?><?php endif ?>
-                    <tr class="tasks__item task <?php if ($task['done']): ?>task--completed<?php endif ?>">
-                        <td class="task__select">
-                            <label class="checkbox task__checkbox">
-                                <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1">
-                                <span class="checkbox__text"><?=$task['name'];?></span>
-                            </label>
-                        </td>
+                        <?php if ($task['done'] && $show_complete_tasks === 0): continue; ?><?php endif ?>
+                        <tr class="tasks__item task <?= ($task['done']) ? 'task--completed' : '' ?>">
+                            <td class="task__select">
+                                <label class="checkbox task__checkbox">
+                                    <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1">
+                                    <span class="checkbox__text"><?=$task['name'];?></span>
+                                </label>
+                            </td>
 
-                        <td class="task__date"><?=$task['date'];?></td>
+                            <td class="task__date"><?=$task['date'];?></td>
 
-                    </tr>
+                        </tr>
                     <?php endforeach; ?>
                 </table>
             </main>
