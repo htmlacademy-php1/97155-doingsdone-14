@@ -40,6 +40,23 @@ $tasks = [
         'done' => false
     ]
 ];
+
+/**
+ * Считает количество задач в проекте
+ * @param array $tasks Ассоциативный массив задач
+ * @param string $project_name Название проекта
+ * @return int $tasks_count Количество задач в проекте
+ */
+function tasks_count (array $tasks, string $project_name) : int {
+    $tasks_count = 0;
+    foreach ($tasks as $task) {
+        if ($project_name === $task['category']) {
+            $tasks_count++;
+        }
+    }
+    return $tasks_count;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -84,7 +101,7 @@ $tasks = [
                         <?php foreach($projects as $project_name) :?>
                             <li class="main-navigation__list-item">
                                 <a class="main-navigation__list-item-link" href="#"><?=$project_name;?></a>
-                                <span class="main-navigation__list-item-count">0</span>
+                                <span class="main-navigation__list-item-count"><?= tasks_count($tasks, $project_name); ?></span>
                             </li>
                         <?php endforeach; ?>
                     </ul>
