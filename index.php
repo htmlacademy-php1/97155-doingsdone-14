@@ -41,7 +41,13 @@ $tasks = [
     ]
 ];
 
-function tasks_count (array $tasks, $project_name) {
+/**
+ * Считает количество задач в проекте
+ * @param array $tasks Ассоциативный массив задач
+ * @param string $project_name Название проекта
+ * @return int $tasks_count Количество задач в проекте
+ */
+function tasks_count (array $tasks, string $project_name) : int {
     $tasks_count = 0;
     foreach ($tasks as $task) {
         if ($project_name === $task['category']) {
@@ -50,21 +56,6 @@ function tasks_count (array $tasks, $project_name) {
     }
     return $tasks_count;
 }
-
-
-// function tasks_count (array $tasks, $project_name) {
-//     $tasks_count = 0;
-//     foreach ($tasks as $task) {
-//         if (in_array($project_name, $task)) {
-//             var_dump($tasks_count);
-//             $tasks_count = $tasks_count + 1;
-//         }
-//     }
-//     return $tasks_count;
-// }
-
-// $count = tasks_count($tasks, $projects[2]);
-// var_dump($count);
 
 ?>
 <!DOCTYPE html>
