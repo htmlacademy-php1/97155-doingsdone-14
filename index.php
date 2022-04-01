@@ -5,25 +5,25 @@ $projects = ["Входящие", "Учеба", "Работа", "Домашние
 $tasks = [
     [
         'name' => 'Собеседование в IT компании',
-        'date' => '01.12.2019',
+        'date' => '01.04.2022',
         'category' => 'Работа',
         'done' => false
     ],
     [
         'name' => 'Выполнить тестовое задание',
-        'date' => '25.12.2019',
+        'date' => '05.05.2022',
         'category' => 'Работа',
         'done' => false
     ],
     [
         'name' => 'Сделать задание первого раздела',
-        'date' => '21.12.2019',
+        'date' => '30.03.2022',
         'category' => 'Учеба',
         'done' => true
     ],
     [
         'name' => 'Встреча с другом',
-        'date' => '22.12.2019',
+        'date' => '29.03.2022',
         'category' => 'Входящие',
         'done' => false
     ],
@@ -80,8 +80,28 @@ function include_template($name, array $data = []) {
     return $result;
 }
 
+/**
+ * Определяет задачи до даты выполнения которых осталось менее 24 часов
+ * @param $task_date Дата выполнения задачи. Если у задачи дата указана, то получает строку, если дата не указана получает null
+ * @return boll Если true, значит до даты выполнения менее 24 часов
+ */
+function task_important ($task_date) : bool {
+    if (is_null($task_date)) {
+        return false;
+    } else {
+        $date_timestamp = strtotime($task_date);
+        $current_date = strtotime(date("d.m.Y h:i:s"));
+        $hours_left = floor(($date_timestamp - $current_date) / 3600);
+        if ($hours_left <= 24) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
 $page_content = include_template('main.php', ['projects' => $projects, 'tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks]);
 $layout_content = include_template('layout.php', ['content' => $page_content, 'title' => 'Дела в порядке']);
-print($layout_content)
+print($layout_content);
 
 ?>
