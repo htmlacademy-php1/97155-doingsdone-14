@@ -82,10 +82,10 @@ function include_template($name, array $data = []) {
 
 /**
  * Определяет задачи до даты выполнения которых осталось менее 24 часов
- * @param $task_date Дата выполнения задачи. Если у задачи дата указана, то получает строку, если дата не указана получает null
- * @return boll Если true, значит до даты выполнения менее 24 часов
+ * @param string $task_date Дата выполнения задачи. Если у задачи дата указана, то получает строку, если дата не указана получает null
+ * @return bool Если true, значит до даты выполнения менее 24 часов
  */
-function task_important ($task_date) : bool {
+function task_important (?string $task_date) : bool {
     if (is_null($task_date)) {
         return false;
     } else {
