@@ -1,8 +1,8 @@
-CREATE DATABASE 97155_doingsdone_14
+CREATE DATABASE doingsdone
   DEFAULT CHARACTER SET utf8
   DEFAULT COLLATE utf8_general_ci;
 
-USE 97155_doingsdone_14;
+USE doingsdone;
 
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -28,5 +28,3 @@ CREATE TABLE tasks (
     user_id INT,
     project_id INT
 );
-
-
