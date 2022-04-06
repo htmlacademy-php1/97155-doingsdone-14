@@ -6,28 +6,31 @@ USE doingsdone;
 
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    email CHAR(128) NOT NULL UNIQUE,
+    email VARCHAR(128) NOT NULL UNIQUE,
     password CHAR(64),
-    name CHAR(128),
+    name VARCHAR(128),
     dt_add TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE projects (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name CHAR(128) NOT NULL,
-    user_id INT
+    name VARCHAR(128) NOT NULL,
+    user_id INT,
+    FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
 CREATE TABLE tasks (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name CHAR(255),
+    name VARCHAR(255),
     dt_add TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     date_done TIMESTAMP,
-    done INT DEFAULT 0,
-    file CHAR(255),
+    done TINYINT DEFAULT 0,
+    file VARCHAR(255),
     user_id INT,
-    project_id INT
+    project_id INT,
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (project_id) REFERENCES projects (id)
 );
 
-CREATE INDEX email ON users(email);
-CREATE INDEX name ON tasks(name);
+CREATE INDEX in_email ON users(email);
+CREATE INDEX in_name ON tasks(name);
