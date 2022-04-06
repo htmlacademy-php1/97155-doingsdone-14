@@ -28,3 +28,6 @@ CREATE TABLE tasks (
     user_id INT,
     project_id INT
 );
+
+CREATE INDEX email ON users(email);
+CREATE INDEX name ON tasks(name);
