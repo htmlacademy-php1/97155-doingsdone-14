@@ -1,45 +1,68 @@
 <?php
+// подключаемся к базе данных
+$connect = mysqli_connect("localhost", "phpuser", "phpuserpass", "doingsdone");
+mysqli_set_charset($connect, "utf8");
+
+// получаем список проектов для пользователя
+$sql_projects = "SELECT name, id FROM projects WHERE user_id = 1";
+$result_projects = mysqli_query($connect, $sql_projects);
+$projects = mysqli_fetch_all($result_projects, MYSQLI_ASSOC);
+var_dump($projects);
+
+// получаем список задач для пользователя
+$sql_tasks = "SELECT name, dt_add, done, file, project_id FROM tasks WHERE user_id = 1;";
+$result_tasks = mysqli_query($connect, $sql_tasks);
+$tasks = mysqli_fetch_all($result_tasks, MYSQLI_ASSOC);
+var_dump($tasks);
+
+if (!$result_projects || !$result_tasks ) {
+    $error = mysqli_error($connect);
+    print("Ошибка MySQL" . $error);
+}
+
+
+
 // показывать или нет выполненные задачи
 $show_complete_tasks = rand(0, 1);
-$projects = ["Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
-$tasks = [
-    [
-        'name' => 'Собеседование в IT компании',
-        'date' => '01.04.2022',
-        'category' => 'Работа',
-        'done' => false
-    ],
-    [
-        'name' => 'Выполнить тестовое задание',
-        'date' => '05.05.2022',
-        'category' => 'Работа',
-        'done' => false
-    ],
-    [
-        'name' => 'Сделать задание первого раздела',
-        'date' => '30.03.2022',
-        'category' => 'Учеба',
-        'done' => true
-    ],
-    [
-        'name' => 'Встреча с другом',
-        'date' => '29.03.2022',
-        'category' => 'Входящие',
-        'done' => false
-    ],
-    [
-        'name' => 'Купить корм для кота ',
-        'date' => null,
-        'category' => 'Домашние дела',
-        'done' => false
-    ],
-    [
-        'name' => 'Заказать пиццу',
-        'date' => null,
-        'category' => 'Домашние дела',
-        'done' => false
-    ]
-];
+// $projects = ["Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
+// $tasks = [
+//     [
+//         'name' => 'Собеседование в IT компании',
+//         'date' => '01.04.2022',
+//         'category' => 'Работа',
+//         'done' => false
+//     ],
+//     [
+//         'name' => 'Выполнить тестовое задание',
+//         'date' => '05.05.2022',
+//         'category' => 'Работа',
+//         'done' => false
+//     ],
+//     [
+//         'name' => 'Сделать задание первого раздела',
+//         'date' => '30.03.2022',
+//         'category' => 'Учеба',
+//         'done' => true
+//     ],
+//     [
+//         'name' => 'Встреча с другом',
+//         'date' => '29.03.2022',
+//         'category' => 'Входящие',
+//         'done' => false
+//     ],
+//     [
+//         'name' => 'Купить корм для кота ',
+//         'date' => null,
+//         'category' => 'Домашние дела',
+//         'done' => false
+//     ],
+//     [
+//         'name' => 'Заказать пиццу',
+//         'date' => null,
+//         'category' => 'Домашние дела',
+//         'done' => false
+//     ]
+// ];
 
 /**
  * Считает количество задач в проекте

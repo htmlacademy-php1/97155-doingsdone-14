@@ -5,8 +5,8 @@
                     <ul class="main-navigation__list">
                         <?php foreach($projects as $project_name) :?>
                             <li class="main-navigation__list-item">
-                                <a class="main-navigation__list-item-link" href="#"><?=strip_tags($project_name);?></a>
-                                <span class="main-navigation__list-item-count"><?= tasks_count($tasks, $project_name); ?></span>
+                                <a class="main-navigation__list-item-link" href="#"><?=strip_tags($project_name['name']);?></a>
+                                <span class="main-navigation__list-item-count"><?= tasks_count($tasks, $project_name['name']); ?></span>
                             </li>
                         <?php endforeach; ?>
                     </ul>
