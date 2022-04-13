@@ -67,13 +67,14 @@ $show_complete_tasks = rand(0, 1);
 /**
  * Считает количество задач в проекте
  * @param array $tasks Ассоциативный массив задач
- * @param string $project_name Название проекта
+ * @param int $project_id ID проекта
  * @return int $tasks_count Количество задач в проекте
  */
-function tasks_count (array $tasks, string $project_name) : int {
+function tasks_count (array $tasks, int $project_id) : int {
     $tasks_count = 0;
     foreach ($tasks as $task) {
-        if ($project_name === $task['category']) {
+        settype($task['project_id'], "integer");
+        if ($project_id === $task['project_id']) {
             $tasks_count++;
         }
     }
