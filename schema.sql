@@ -23,7 +23,7 @@ CREATE TABLE tasks (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
     dt_add TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    date_done TIMESTAMP,
+    date_done DATE,
     done TINYINT DEFAULT 0,
     file VARCHAR(255),
     user_id INT,

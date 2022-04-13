@@ -13,15 +13,6 @@ $sql_tasks = "SELECT name, date_done, done, file, project_id FROM tasks WHERE us
 $result_tasks = mysqli_query($connect, $sql_tasks);
 $tasks = mysqli_fetch_all($result_tasks, MYSQLI_ASSOC);
 
-foreach ($tasks as $task) {
-    settype($task['date_done'], "integer");
-    date("Y-m-d", $task['date_done']);
-    var_dump($task['date_done']);
-
-}
-
-var_dump($tasks);
-
 if (!$result_projects || !$result_tasks ) {
     $error = mysqli_error($connect);
     print("Ошибка MySQL" . $error);
