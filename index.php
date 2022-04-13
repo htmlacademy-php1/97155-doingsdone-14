@@ -7,12 +7,19 @@ mysqli_set_charset($connect, "utf8");
 $sql_projects = "SELECT name, id FROM projects WHERE user_id = 1";
 $result_projects = mysqli_query($connect, $sql_projects);
 $projects = mysqli_fetch_all($result_projects, MYSQLI_ASSOC);
-var_dump($projects);
 
 // получаем список задач для пользователя
-$sql_tasks = "SELECT name, dt_add, done, file, project_id FROM tasks WHERE user_id = 1;";
+$sql_tasks = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1;";
 $result_tasks = mysqli_query($connect, $sql_tasks);
 $tasks = mysqli_fetch_all($result_tasks, MYSQLI_ASSOC);
+
+foreach ($tasks as $task) {
+    settype($task['date_done'], "integer");
+    date("Y-m-d", $task['date_done']);
+    var_dump($task['date_done']);
+
+}
+
 var_dump($tasks);
 
 if (!$result_projects || !$result_tasks ) {
