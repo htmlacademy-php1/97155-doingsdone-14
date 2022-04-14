@@ -1,4 +1,7 @@
 <?php
+// показывать или нет выполненные задачи
+$show_complete_tasks = rand(0, 1);
+
 // подключаемся к базе данных
 $connect = mysqli_connect("localhost", "phpuser", "phpuserpass", "doingsdone");
 mysqli_set_charset($connect, "utf8");
@@ -13,54 +16,17 @@ $sql_tasks = "SELECT name, date_done, done, file, project_id FROM tasks WHERE us
 $result_tasks = mysqli_query($connect, $sql_tasks);
 $tasks = mysqli_fetch_all($result_tasks, MYSQLI_ASSOC);
 
+// переводим формат даты выполнения задачи к виду dd-mm-yyyy
+foreach ($tasks as &$task) {
+    $date_done = date_convert($task['date_done']);
+    $task['date_done'] = $date_done;
+}
+
+// выводим ошибку, если нет подключения к базе
 if (!$result_projects || !$result_tasks ) {
     $error = mysqli_error($connect);
     print("Ошибка MySQL" . $error);
 }
-
-
-
-// показывать или нет выполненные задачи
-$show_complete_tasks = rand(0, 1);
-// $projects = ["Входящие", "Учеба", "Работа", "Домашние дела", "Авто"];
-// $tasks = [
-//     [
-//         'name' => 'Собеседование в IT компании',
-//         'date' => '01.04.2022',
-//         'category' => 'Работа',
-//         'done' => false
-//     ],
-//     [
-//         'name' => 'Выполнить тестовое задание',
-//         'date' => '05.05.2022',
-//         'category' => 'Работа',
-//         'done' => false
-//     ],
-//     [
-//         'name' => 'Сделать задание первого раздела',
-//         'date' => '30.03.2022',
-//         'category' => 'Учеба',
-//         'done' => true
-//     ],
-//     [
-//         'name' => 'Встреча с другом',
-//         'date' => '29.03.2022',
-//         'category' => 'Входящие',
-//         'done' => false
-//     ],
-//     [
-//         'name' => 'Купить корм для кота ',
-//         'date' => null,
-//         'category' => 'Домашние дела',
-//         'done' => false
-//     ],
-//     [
-//         'name' => 'Заказать пиццу',
-//         'date' => null,
-//         'category' => 'Домашние дела',
-//         'done' => false
-//     ]
-// ];
 
 /**
  * Считает количество задач в проекте
@@ -120,6 +86,20 @@ function task_important (?string $task_date) : bool {
             return false;
         }
     }
+}
+
+/**
+ * Преобразовывает формат даты к виду dd-mm-yyyy
+ * @param string | null $date Дата для преобразования
+ * @return string | null Если было передано null, то вернет null, если было передано string, вернет string
+ */
+function date_convert (string | null $date) : string | null {
+    if (is_null($date)) {
+        return null;
+    } else {
+        $date_timestamp = strtotime($date);
+        $date_newformat = date('d-m-Y', $date_timestamp);
+    } return $date_newformat;
 }
 
 $page_content = include_template('main.php', ['projects' => $projects, 'tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks]);
