@@ -6,7 +6,7 @@ $show_complete_tasks = rand(0, 1);
 
 // подключаемся к базе данных
 $db = require_once 'config.php';
-$connection = mysqli_connect($db['host'], $db['user'], $db['password'], $db['database']);
+$connection = db_connection($db);
 
 // получаем список проектов для пользователя
 $projects = get_projects ($connection);
