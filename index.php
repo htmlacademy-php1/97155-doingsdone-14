@@ -3,29 +3,53 @@
 $show_complete_tasks = rand(0, 1);
 
 // подключаемся к базе данных
-$connect = mysqli_connect("localhost", "phpuser", "phpuserpass", "doingsdone");
-mysqli_set_charset($connect, "utf8");
+$db = require_once 'config.php';
+$connection = mysqli_connect($db['host'], $db['user'], $db['password'], $db['database']);
 
 // получаем список проектов для пользователя
-$sql_projects = "SELECT name, id FROM projects WHERE user_id = 1";
-$result_projects = mysqli_query($connect, $sql_projects);
-$projects = mysqli_fetch_all($result_projects, MYSQLI_ASSOC);
+$projects = get_projects ($connection);
 
 // получаем список задач для пользователя
-$sql_tasks = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1;";
-$result_tasks = mysqli_query($connect, $sql_tasks);
-$tasks = mysqli_fetch_all($result_tasks, MYSQLI_ASSOC);
+$tasks = get_tasks ($connection);
 
 // переводим формат даты выполнения задачи к виду dd-mm-yyyy
-foreach ($tasks as &$task) {
-    $date_done = date_convert($task['date_done']);
-    $task['date_done'] = $date_done;
+// foreach ($tasks as &$task) {
+//     $date_done = date_convert($task['date_done']);
+//     $task['date_done'] = $date_done;
+// }
+
+/**
+ * Возвращает массив проектов пользователя
+ * @param object $connection Объект с данными для подключения к базе
+ * @return array $projects Массив проектов пользователя
+ */
+function get_projects (object $connection) : array {
+    $sql_projects = "SELECT name, id FROM projects WHERE user_id = 1";
+    $result_projects = mysqli_query($connection, $sql_projects);
+    if (!$result_projects) {
+        $error = mysqli_error($connection);
+        print("Ошибка MySQL" . $error);
+    } else {
+        $projects = mysqli_fetch_all($result_projects, MYSQLI_ASSOC);
+    }
+    return $projects;
 }
 
-// выводим ошибку, если нет подключения к базе
-if (!$result_projects || !$result_tasks ) {
-    $error = mysqli_error($connect);
-    print("Ошибка MySQL" . $error);
+/**
+ * Возвращает массив задач пользователя
+ * @param object $connection Объект с данными для подключения к базе
+ * @return array $tasks Массив задач пользователя
+ */
+function get_tasks (object $connection) : array {
+    $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1";
+    $result_tasks = mysqli_query($connection, $sql_projects);
+    if (!$result_tasks) {
+        $error = mysqli_error($connection);
+        print("Ошибка MySQL" . $error);
+    } else {
+        $tasks = mysqli_fetch_all($result_tasks, MYSQLI_ASSOC);
+    }
+    return $tasks;
 }
 
 /**
