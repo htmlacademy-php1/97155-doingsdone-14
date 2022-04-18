@@ -51,7 +51,7 @@
                                 </label>
                             </td>
 
-                            <td class="task__date"><?=$task['date_done'];?></td>
+                            <td class="task__date"><?= $task['date_done']; ?></td>
 
                         </tr>
                     <?php endforeach; ?>
