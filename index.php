@@ -5,8 +5,8 @@ require_once 'functions.php';
 $show_complete_tasks = rand(0, 1);
 
 // подключаемся к базе данных
-$db = require_once 'config.php';
-$connection = db_connection($db);
+$config = require_once 'config.php';
+$connection = db_connection($config['db']);
 
 // получаем список проектов для пользователя
 $projects = get_projects ($connection);

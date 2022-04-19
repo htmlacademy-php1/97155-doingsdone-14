@@ -87,10 +87,10 @@ function get_projects (object $connection) : array {
 
 /**
  * Возвращает массив задач пользователя
- * @param object $connection Объект с данными для подключения к базе
+ * @param mysqli $connection Объект с данными для подключения к базе
  * @return array $tasks Массив задач пользователя
  */
-function get_tasks (object $connection) : array {
+function get_tasks (mysqli $connection) : array {
     $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1";
     $result_tasks = mysqli_query($connection, $sql_projects);
     $tasks = mysqli_fetch_all($result_tasks, MYSQLI_ASSOC);
@@ -100,9 +100,9 @@ function get_tasks (object $connection) : array {
 /**
  * Подключается к базе данных
  * @param array $db Массив содержащий данные для подключения к базе
- * @return object Объект содержащий ресурс соединения с базой
+ * @return mysqli Объект содержащий ресурс соединения с базой
  */
-function db_connection (array $db) : object {
+function db_connection (array $db) : mysqli {
     $connection = mysqli_connect($db['host'], $db['user'], $db['password'], $db['database']);
     if ($connection === false) {
         exit("Ошибка при подключении к БД");
