@@ -75,10 +75,10 @@ function date_convert (string | null $date) : string | null {
 
 /**
  * Возвращает массив проектов пользователя
- * @param object $connection Объект с данными для подключения к базе
+ * @param mysqli $connection Объект с данными для подключения к базе
  * @return array $projects Массив проектов пользователя
  */
-function get_projects (object $connection) : array {
+function get_projects (mysqli $connection) : array {
     $sql_projects = "SELECT name, id FROM projects WHERE user_id = 1";
     $result_projects = mysqli_query($connection, $sql_projects);
     $projects = mysqli_fetch_all($result_projects, MYSQLI_ASSOC);
@@ -88,10 +88,15 @@ function get_projects (object $connection) : array {
 /**
  * Возвращает массив задач пользователя
  * @param mysqli $connection Объект с данными для подключения к базе
+ * @param int $project_id ID проекта
  * @return array $tasks Массив задач пользователя
  */
-function get_tasks (mysqli $connection) : array {
-    $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1";
+function get_tasks (mysqli $connection, int $project_id) : array {
+    if ($project_id === 0) {
+        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1";
+    } else {
+        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1 AND project_id = $project_id";
+    }
     $result_tasks = mysqli_query($connection, $sql_projects);
     $tasks = mysqli_fetch_all($result_tasks, MYSQLI_ASSOC);
     return $tasks;

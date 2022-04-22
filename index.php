@@ -12,7 +12,8 @@ $connection = db_connection($config['db']);
 $projects = get_projects ($connection);
 
 // получаем список задач для пользователя
-$tasks = get_tasks ($connection);
+$project_id = (int)filter_input(INPUT_GET, 'project_id');
+$tasks = get_tasks ($connection, $project_id);
 
 // переводим формат даты выполнения задачи к виду dd-mm-yyyy
 foreach ($tasks as &$task) {
