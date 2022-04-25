@@ -1,20 +1,19 @@
 <?php
+
 /**
  * Считает количество задач в проекте
- * @param array $tasks Ассоциативный массив задач
+ * @param mysqli $connection ОБъект с данными для подключения к базе
  * @param int $project_id ID проекта
  * @return int $tasks_count Количество задач в проекте
  */
-function tasks_count (array $tasks, int $project_id) : int {
-    $tasks_count = 0;
-    foreach ($tasks as $task) {
-        settype($task['project_id'], "integer");
-        if ($project_id === $task['project_id']) {
-            $tasks_count++;
-        }
-    }
+function tasks_count (mysqli $connection, int $project_id) : int {
+    $sql_tasks_count = "SELECT COUNT(id) FROM tasks WHERE project_id = $project_id AND user_id = 1";
+    $result_tasks_count = mysqli_query($connection, $sql_tasks_count);
+    $tasks_count_array = mysqli_fetch_all($result_tasks_count, MYSQLI_ASSOC);
+    $tasks_count = (int)$tasks_count_array[0]['COUNT(id)'];
     return $tasks_count;
 }
+
 
 /**
  * Подключает шаблон, передает туда данные и возвращает итоговый HTML контент
@@ -75,23 +74,31 @@ function date_convert (string | null $date) : string | null {
 
 /**
  * Возвращает массив проектов пользователя
- * @param object $connection Объект с данными для подключения к базе
+ * @param mysqli $connection Объект с данными для подключения к базе
  * @return array $projects Массив проектов пользователя
  */
-function get_projects (object $connection) : array {
+function get_projects (mysqli $connection) : array {
     $sql_projects = "SELECT name, id FROM projects WHERE user_id = 1";
     $result_projects = mysqli_query($connection, $sql_projects);
     $projects = mysqli_fetch_all($result_projects, MYSQLI_ASSOC);
+    foreach ($projects as &$project) {
+        settype($project['id'], "integer");
+    }
     return $projects;
 }
 
 /**
  * Возвращает массив задач пользователя
  * @param mysqli $connection Объект с данными для подключения к базе
+ * @param int $project_id ID проекта
  * @return array $tasks Массив задач пользователя
  */
-function get_tasks (mysqli $connection) : array {
-    $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1";
+function get_tasks (mysqli $connection, int $project_id) : array {
+    if ($project_id === 0) {
+        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1";
+    } else {
+        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1 AND project_id = $project_id";
+    }
     $result_tasks = mysqli_query($connection, $sql_projects);
     $tasks = mysqli_fetch_all($result_tasks, MYSQLI_ASSOC);
     return $tasks;
