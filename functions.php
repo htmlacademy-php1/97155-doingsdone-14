@@ -1,20 +1,19 @@
 <?php
+
 /**
  * Считает количество задач в проекте
- * @param array $tasks Ассоциативный массив задач
+ * @param mysqli $connection ОБъект с данными для подключения к базе
  * @param int $project_id ID проекта
  * @return int $tasks_count Количество задач в проекте
  */
-function tasks_count (array $tasks, int $project_id) : int {
-    $tasks_count = 0;
-    foreach ($tasks as $task) {
-        settype($task['project_id'], "integer");
-        if ($project_id === $task['project_id']) {
-            $tasks_count++;
-        }
-    }
+function tasks_count (mysqli $connection, int $project_id) : int {
+    $sql_tasks_count = "SELECT COUNT(id) FROM tasks WHERE project_id = $project_id AND user_id = 1";
+    $result_tasks_count = mysqli_query($connection, $sql_tasks_count);
+    $tasks_count_array = mysqli_fetch_all($result_tasks_count, MYSQLI_ASSOC);
+    $tasks_count = (int)$tasks_count_array[0]['COUNT(id)'];
     return $tasks_count;
 }
+
 
 /**
  * Подключает шаблон, передает туда данные и возвращает итоговый HTML контент

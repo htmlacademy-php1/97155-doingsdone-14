@@ -5,8 +5,8 @@
                     <ul class="main-navigation__list">
                         <?php foreach($projects as $project) :?>
                             <li class="main-navigation__list-item <?= ($project['id'] === (int)filter_input(INPUT_GET, 'project_id')) ? 'main-navigation__list-item--active' : '' ?>">
-                                <a class="main-navigation__list-item-link" href="/?project_id=<?= $project['id']; ?>"><?=strip_tags($project['name']); var_dump($project['id']);?></a>
-                                <span class="main-navigation__list-item-count"><?= tasks_count($tasks, $project['id']); ?></span>
+                                <a class="main-navigation__list-item-link" href="/?project_id=<?= $project['id']; ?>"><?=strip_tags($project['name']); ?></a>
+                                <span class="main-navigation__list-item-count"><?= tasks_count($connection, $project['id']); ?></span>
                             </li>
                         <?php endforeach; ?>
                     </ul>

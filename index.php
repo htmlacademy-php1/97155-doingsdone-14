@@ -21,7 +21,7 @@ foreach ($tasks as &$task) {
     $task['date_done'] = $date_done;
 }
 
-$page_content = include_template('main.php', ['projects' => $projects, 'tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks]);
+$page_content = include_template('main.php', ['projects' => $projects, 'tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks, 'connection' => $connection]);
 $layout_content = include_template('layout.php', ['content' => $page_content, 'title' => 'Дела в порядке']);
 print($layout_content);
 
