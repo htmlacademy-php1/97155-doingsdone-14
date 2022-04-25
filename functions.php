@@ -82,6 +82,9 @@ function get_projects (mysqli $connection) : array {
     $sql_projects = "SELECT name, id FROM projects WHERE user_id = 1";
     $result_projects = mysqli_query($connection, $sql_projects);
     $projects = mysqli_fetch_all($result_projects, MYSQLI_ASSOC);
+    foreach ($projects as &$project) {
+        settype($project['id'], "integer");
+    }
     return $projects;
 }
 
