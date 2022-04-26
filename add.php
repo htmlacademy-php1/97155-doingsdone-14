@@ -10,14 +10,15 @@ $projects = get_projects($connection);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $new_task = $_POST;
-    $sql = "INSERT INTO tasks (name, project_id, date_done, user_id) VALUES (?, ?, ?, 1)";
+    var_dump($new_task);
+    $sql = "INSERT INTO tasks (name, project_id, date_done, file, user_id) VALUES (?, ?, ?, ?, 1)";
 
     $stmt = db_get_prepare_stmt($connection, $sql, $new_task);
     $result = mysqli_stmt_execute($stmt);
 
-    if ($result) {
-        header("Location: /");
-    }
+    // if ($result) {
+    //     header("Location: /");
+    // }
 }
 
 $page_content = include_template('add.php', ['projects' => $projects, 'connection' => $connection]);
