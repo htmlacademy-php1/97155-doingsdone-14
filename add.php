@@ -10,8 +10,21 @@ $projects = get_projects($connection);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $new_task = $_POST;
+
+    if (isset($_FILES['file']) && $_FILES['file']['size'] != 0) {
+    $file_name = $_FILES['file']['name'];
+    $file_path = __DIR__ . '/uploads/';
+    $file_url = '/uploads/' . $file_name;
+    $new_task['file'] = $file_url;
+
+    move_uploaded_file($_FILES['file']['tmp_name'], $file_path . $file_name);
+
+    // print("<a href="/php/14/book/06-forms/04-upload/$file_url">$file_name</a>");
+}
+
     var_dump($new_task);
-    $sql = "INSERT INTO tasks (name, project_id, date_done, file, user_id) VALUES (?, ?, ?, ?, 1)";
+    print_r($_FILES);
+    $sql = "INSERT INTO tasks (name, project_id, date_done, user_id, file) VALUES (?, ?, ?, 1, ?)";
 
     $stmt = db_get_prepare_stmt($connection, $sql, $new_task);
     $result = mysqli_stmt_execute($stmt);
