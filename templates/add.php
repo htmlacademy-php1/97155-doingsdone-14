@@ -19,7 +19,7 @@
             <main class="content__main">
             <h2 class="content__main-heading">Добавление задачи</h2>
 
-            <form class="form"  action="index.html" method="post" autocomplete="off">
+            <form class="form"  action="" method="post" autocomplete="off" enctype="multipart/form-data">
             <div class="form__row">
                 <label class="form__label" for="name">Название <sup>*</sup></label>
 
@@ -29,7 +29,7 @@
             <div class="form__row">
                 <label class="form__label" for="project">Проект <sup>*</sup></label>
 
-                <select class="form__input form__input--select" name="project" id="project">
+                <select class="form__input form__input--select" name="project_id" id="project">
                     <?php foreach ($projects as $project): ?>
                         <option value="<?= $project['id']; ?>"><?= $project['name']; ?></option>
                     <?php endforeach; ?>
@@ -39,7 +39,7 @@
             <div class="form__row">
                 <label class="form__label" for="date">Дата выполнения</label>
 
-                <input class="form__input form__input--date" type="text" name="date" id="date" value="" placeholder="Введите дату в формате ГГГГ-ММ-ДД">
+                <input class="form__input form__input--date" type="text" name="date_done" id="date" value="" placeholder="Введите дату в формате ГГГГ-ММ-ДД">
             </div>
 
             <div class="form__row">
