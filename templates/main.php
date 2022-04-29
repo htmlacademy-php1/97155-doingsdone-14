@@ -51,7 +51,15 @@
                                 </label>
                             </td>
 
+                            <?php if ($task['file']): ?>
+                                <td class="task__file"><a class="download-link" href="<?= $task['file'] ?>"><?= substr_replace($task['file'], '', 0, 9) ?></a></td>
+                            <?php else: ?>
+                                <td class="task__file"></td>
+                            <?php endif; ?>
+
                             <td class="task__date"><?= $task['date_done']; ?></td>
+
+                            <td class="task__controls"></td>
 
                         </tr>
                     <?php endforeach; ?>
