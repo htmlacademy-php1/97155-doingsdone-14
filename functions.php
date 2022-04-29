@@ -94,9 +94,9 @@ function get_projects (mysqli $connection) : array {
  */
 function get_tasks (mysqli $connection, int $project_id) : array {
     if ($project_id === 0) {
-        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1";
+        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1 ORDER BY dt_add DESC";
     } else {
-        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1 AND project_id = $project_id";
+        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1 AND project_id = $project_id ORDER BY dt_add DESC";
     }
     $result_tasks = mysqli_query($connection, $sql_projects);
     $tasks = mysqli_fetch_all($result_tasks, MYSQLI_ASSOC);
