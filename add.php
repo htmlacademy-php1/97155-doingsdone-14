@@ -7,10 +7,34 @@ $connection = db_connection($config['db']);
 
 // получаем список проектов для пользователя
 $projects = get_projects($connection);
-
+$projects_ids = array_column($projects, 'id');
 
 // проверяем была ли отправка формы добавления новой задачи
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+// определяем массив правил для проверки полей формы
+    $rules = [
+        'name' => function($value) {
+            return validate_availability($value);
+        },
+        'project_id' => function($value) use ($projects_ids) {
+            return validate_сategory($value, $projects_ids);
+        },
+        'date_done' => function($value) {
+            return is_date_valid($value);
+        }
+    ];
+
+// определяем массив для хранения ошибок валидации формы
+    $errors = [];
+
+// сохраняем в массив данные из полей формы
+    $task = filter_input_array(INPUT_POST, ['name' => FILTER_DEFAULT, 'project_id' => FILTER_DEFAULT,
+        'date_done' => FILTER_DEFAULT], true);
+    var_dump($task);
+
+
+
     $new_task = $_POST;
 
 // если при отправке формы добавили файл, переносим его в папку /uploads
@@ -31,9 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $result = mysqli_stmt_execute($stmt);
 
 // если новая задача добавлена в базу успешно, переадрисоываем пользователя на главную
-    if ($result) {
-        header("Location: /");
-    }
+//     if ($result) {
+//         header("Location: /");
+//     }
 }
 
 $page_content = include_template('add.php', ['projects' => $projects, 'connection' => $connection]);

@@ -172,4 +172,52 @@ function db_get_prepare_stmt($link, $sql, $data = []) {
     return $stmt;
 }
 
+/**
+ * Проверяет существование указанного проекта
+ *
+ * @param $id int ID проекта
+ * @param $allowed_list array Массив существующих проектов
+ *
+ * @return string | null Если не находит проект, возвращает текст ошибки. Если находит, возвращает null
+ */
+function validate_category(int $id, array $allowed_list) : string | null {
+    if (!in_array($id, $allowed_list)) {
+        return "Указан несуществующий проект";
+    }
+
+    return null;
+}
+
+/**
+ * Проверяет заполненность поля
+ *
+ * @param $value string | null Содержимое поля
+ *
+ * @return string Если поле пустое, возвращает ошибку, иначе null
+ */
+function validate_availability(string | null $value) : string | null {
+    if (!$value) {
+        return "Поле должно быть заполнено";
+    }
+
+    return null;
+}
+
+/**
+ * Проверяет переданную дату на соответствие формату 'ГГГГ-ММ-ДД'
+ *
+ * @param string $date Дата в виде строки
+ *
+ * @return null при совпадении с форматом 'ГГГГ-ММ-ДД', иначе string
+ */
+function is_date_valid(string $date) : bool {
+    $format_to_check = 'Y-m-d';
+    $date_time_obj = date_create_from_format($format_to_check, $date);
+    if ($date_time_obj !== false && array_sum(date_get_last_errors()) === 0) {
+        return null;
+    }
+
+    return "Укажите дату в формате ГГГГ-ММ-ДД";
+}
+
 ?>
