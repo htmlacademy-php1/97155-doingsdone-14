@@ -204,15 +204,22 @@ function validate_availability(string $value) : string | null {
 }
 
 /**
- * Проверяет переданную дату на соответствие формату 'ГГГГ-ММ-ДД'
+ * Проверяет переданную дату на соответствие формату 'ГГГГ-ММ-ДД'. Проверяет, что дата больше или равна текущей.
  *
  * @param string $date Дата в виде строки
  *
- * @return null при совпадении с форматом 'ГГГГ-ММ-ДД', иначе string
+ * @return null если совпадает форматом и дата больше или равна текущей, иначе текст ошибки
  */
 function is_date_valid(string $date) : null | string {
     $format_to_check = 'Y-m-d';
+    $current_date = date('Y-m-d');
+    $current_date_time_obj = date_create_from_format($format_to_check, $current_date);
     $date_time_obj = date_create_from_format($format_to_check, $date);
+
+    if ($date_time_obj < $current_date_time_obj) {
+        return "Дата должна быть больше или равна текущей";
+    }
+
     if ($date_time_obj !== false && array_sum(date_get_last_errors()) === 0) {
         return null;
     }

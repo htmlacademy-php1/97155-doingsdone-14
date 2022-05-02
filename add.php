@@ -76,9 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 $layout_content = include_template('layout.php', ['content' => $page_content, 'title' => 'Дела в порядке']);
-    print($layout_content);
-
-
-
+print($layout_content);
 
 ?>
