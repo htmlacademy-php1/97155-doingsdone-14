@@ -191,12 +191,12 @@ function validate_category(int $id, array $allowed_list) : string | null {
 /**
  * Проверяет заполненность поля
  *
- * @param $value string | null Содержимое поля
+ * @param $value string Содержимое поля
  *
  * @return string Если поле пустое, возвращает ошибку, иначе null
  */
-function validate_availability(string | null $value) : string | null {
-    if (!$value) {
+function validate_availability(string $value) : string | null {
+    if ($value === "") {
         return "Поле должно быть заполнено";
     }
 
@@ -210,7 +210,7 @@ function validate_availability(string | null $value) : string | null {
  *
  * @return null при совпадении с форматом 'ГГГГ-ММ-ДД', иначе string
  */
-function is_date_valid(string $date) : bool {
+function is_date_valid(string $date) : null | string {
     $format_to_check = 'Y-m-d';
     $date_time_obj = date_create_from_format($format_to_check, $date);
     if ($date_time_obj !== false && array_sum(date_get_last_errors()) === 0) {
@@ -219,5 +219,17 @@ function is_date_valid(string $date) : bool {
 
     return "Укажите дату в формате ГГГГ-ММ-ДД";
 }
+
+/**
+ * Возвращает значение поля формы
+ *
+ * @param string $name Наименование поля для которого нужно вернуть значение
+ *
+ * @return string содержимое поля формы
+ */
+function get_post_val(string $name) : string {
+    return filter_input(INPUT_POST, $name);
+}
+
 
 ?>
