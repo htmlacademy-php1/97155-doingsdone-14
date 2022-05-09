@@ -180,7 +180,7 @@ function db_get_prepare_stmt($link, $sql, $data = []) {
  *
  * @return string | null Если не находит проект, возвращает текст ошибки. Если находит, возвращает null
  */
-function validate_category(int $id, array $allowed_list) : string | null {
+function validate_project(int $id, array $allowed_list) : string | null {
     if (!in_array($id, $allowed_list)) {
         return "Указан несуществующий проект";
     }
@@ -256,7 +256,7 @@ function validate_task_form(mysqli $connection, array $post) : array {
             return validate_availability($value);
         },
         'project_id' => function($value) use ($projects_ids) {
-            return validate_category($value, $projects_ids);
+            return validate_project($value, $projects_ids);
         },
         'date_done' => function($value) {
             return is_date_valid($value);
