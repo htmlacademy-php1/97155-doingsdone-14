@@ -296,9 +296,11 @@ function upload_file(array $files) : string | null {
         $file_name = $files['file']['name'];
         $file_path = __DIR__ . '/uploads/';
         $file_url = '/uploads/' . $file_name;
-        move_uploaded_file($files['file']['tmp_name'], $file_path . $file_name);
-        } else {
-            $file_url = null;
+        if (move_uploaded_file($files['file']['tmp_name'], $file_path . $file_name) === false) {
+            exit('Ошибка при записи файла');
+        }
+    } else {
+        $file_url = null;
     }
     return $file_url;
 }
