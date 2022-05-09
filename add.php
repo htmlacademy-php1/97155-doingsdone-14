@@ -5,43 +5,12 @@ require_once 'functions.php';
 $config = require_once 'config.php';
 $connection = db_connection($config['db']);
 
-// получаем список проектов для пользователя
 $projects = get_projects($connection);
-$projects_ids = array_column($projects, 'id');
 
 // проверяем была ли отправка формы добавления новой задачи
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-// определяем массив правил для проверки полей формы
-    $rules = [
-        'name' => function($value) {
-            return validate_availability($value);
-        },
-        'project_id' => function($value) use ($projects_ids) {
-            return validate_category($value, $projects_ids);
-        },
-        'date_done' => function($value) {
-            return is_date_valid($value);
-        }
-    ];
-
-// определяем массив для хранения ошибок валидации формы
-    $errors = [];
-
-// сохраняем в массив данные из полей формы
-    $task = filter_input_array(INPUT_POST, ['name' => FILTER_DEFAULT, 'project_id' => FILTER_DEFAULT,
-        'date_done' => FILTER_DEFAULT], true);
-
-// применяем правила валидации к каждому полю формы
-    foreach ($task as $key => $value) {
-        if (isset($rules[$key])) {
-            $rule = $rules[$key];
-            $errors[$key] = $rule($value);
-        }
-    }
-
-// очищаем массив ошибок от пустых значений
-    $errors = array_filter($errors);
+    $errors = validate_task_form($connection, $_POST);
 
 // проверяем если массив с ошибками не пустой, то передаем в шаблон ошибки
     if (count($errors)) {

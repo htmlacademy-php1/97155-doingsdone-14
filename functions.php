@@ -238,5 +238,50 @@ function get_post_val(string $name) : string {
     return filter_input(INPUT_POST, $name);
 }
 
+/**
+ * Валидирует поля формы добавления задачи
+ *
+ * @param mysqli $connection Объект с данными для подключения к базе
+ * @param array $post Массив содержащий данные из полей формы
+ * @return array массив с ошибками
+ */
+function validate_task_form(mysqli $connection, array $post) : array {
+    // получаем список проектов для пользователя
+    $projects = get_projects($connection);
+    $projects_ids = array_column($projects, 'id');
+
+    // определяем массив правил для проверки полей формы
+    $rules = [
+        'name' => function($value) {
+            return validate_availability($value);
+        },
+        'project_id' => function($value) use ($projects_ids) {
+            return validate_category($value, $projects_ids);
+        },
+        'date_done' => function($value) {
+            return is_date_valid($value);
+        }
+    ];
+
+// определяем массив для хранения ошибок валидации формы
+    $errors = [];
+
+// сохраняем в массив данные из полей формы
+    $task = filter_input_array(INPUT_POST, ['name' => FILTER_DEFAULT, 'project_id' => FILTER_DEFAULT,
+        'date_done' => FILTER_DEFAULT], true);
+
+// применяем правила валидации к каждому полю формы
+    foreach ($task as $key => $value) {
+        if (isset($rules[$key])) {
+            $rule = $rules[$key];
+            $errors[$key] = $rule($value);
+        }
+    }
+
+// очищаем массив ошибок от пустых значений
+    $errors = array_filter($errors);
+    return $errors;
+
+}
 
 ?>
