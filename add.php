@@ -21,11 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $file_url = upload_file($_FILES);
         $new_task['file'] = $file_url;
 
-        // подготовленное выражение для запроса на добавление новой задачи в базу
-        $sql = "INSERT INTO tasks (name, project_id, date_done, user_id, file) VALUES (?, ?, ?, 1, ?)";
-
-        $stmt = db_get_prepare_stmt($connection, $sql, $new_task);
-        $result = mysqli_stmt_execute($stmt);
+        // добавляем задачу в базу
+        $result = add_task($connection, $new_task);
 
         // если новая задача добавлена в базу успешно, переадрисоываем пользователя на главную
         if ($result) {

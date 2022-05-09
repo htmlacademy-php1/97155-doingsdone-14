@@ -305,4 +305,19 @@ function upload_file(array $files) : string | null {
     return $file_url;
 }
 
+/**
+ * Добавляет запись о новой задаче в базу
+ *
+ * @param mysqli $connection Объект с данными для подключения
+ * @param array $new_task Массив с данными добавляемой задачи
+ * @return bool При успешном добавлении возвращает true
+ */
+function add_task(mysqli $connection, array $new_task) : bool {
+    // подготовленное выражение для запроса на добавление новой задачи в базу
+    $sql = "INSERT INTO tasks (name, project_id, date_done, user_id, file) VALUES (?, ?, ?, 1, ?)";
+    $stmt = db_get_prepare_stmt($connection, $sql, $new_task);
+    $result = mysqli_stmt_execute($stmt);
+    return $result;
+}
+
 ?>
