@@ -336,6 +336,25 @@ function validate_email(string $value) : string | null {
 }
 
 /**
+ * Проверяет есть ли такой email в базе
+ *
+ * @param mysqli $connection Объект с данными для подключения
+ * @param string $email Email указаный пользователем
+ * @return string Если такой email существует в базе, возвращает ошибку, иначе null
+ */
+function check_email_existance(mysqli $connection, $email) : string | null {
+    $email = mysqli_real_escape_string($connection, $email);
+    $sql = "SELECT id FROM users WHERE email = '$email'";
+    $result = mysqli_query($connection, $sql);
+
+    if (mysqli_num_rows($result) > 0) {
+        return "Пользователь с этим email уже зарегистрирован";
+    }
+
+    return null;
+}
+
+/**
  * Валидирует поля формы регистрации
  *
  * @param mysqli $connection Объект с данными для подключения к базе
@@ -372,7 +391,12 @@ function validate_registration_form(mysqli $connection, array $post) : array {
         }
     }
 
-// очищаем массив ошибок от пустых значений
+// проверяем наличие введеннго email в базе
+    if (empty($errors)) {
+        $errors['email'] = check_email_existance($connection, $user['email']);
+    }
+
+    // очищаем массив ошибок от пустых значений
     $errors = array_filter($errors);
     return $errors;
 
@@ -386,6 +410,7 @@ function validate_registration_form(mysqli $connection, array $post) : array {
  * @return bool При успешном добавлении возвращает true
  */
 function add_user(mysqli $connection, array $new_user) : bool {
+    $new_user['password'] = password_hash($new_user['password'], PASSWORD_DEFAULT);
     // подготовленное выражение для запроса на добавление нового пользователя в базу
     $sql = "INSERT INTO users (email, password, name) VALUES (?, ?, ?)";
     $stmt = db_get_prepare_stmt($connection, $sql, $new_user);
