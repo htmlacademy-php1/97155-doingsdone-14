@@ -284,4 +284,23 @@ function validate_task_form(mysqli $connection, array $post) : array {
 
 }
 
+/**
+ * Переносит загруженный файл в папку uploads
+ *
+ * @param array $files Массив с данными о загруженном файле
+ *
+ * @return string | null Возвращает пусть к загруженному файлу или null если файл не был загружен
+ */
+function upload_file(array $files) : string | null {
+    if ($files['file']['size'] != 0) {
+        $file_name = $files['file']['name'];
+        $file_path = __DIR__ . '/uploads/';
+        $file_url = '/uploads/' . $file_name;
+        move_uploaded_file($files['file']['tmp_name'], $file_path . $file_name);
+        } else {
+            $file_url = null;
+    }
+    return $file_url;
+}
+
 ?>
