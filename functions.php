@@ -320,4 +320,77 @@ function add_task(mysqli $connection, array $new_task) : bool {
     return $result;
 }
 
+/**
+ * Проверяет валидность email
+ *
+ * @param $value string Содержимое поля
+ *
+ * @return string Если поле не является email, возвращает ошибку, иначе null
+ */
+function validate_email(string $value) : string | null {
+    if (filter_var($value, FILTER_VALIDATE_EMAIL) === false) {
+        return "Укажите E-mail в корректном формате";
+    }
+
+    return null;
+}
+
+/**
+ * Валидирует поля формы регистрации
+ *
+ * @param mysqli $connection Объект с данными для подключения к базе
+ * @param array $post Массив содержащий данные из полей формы
+ * @return array массив с ошибками
+ */
+function validate_registration_form(mysqli $connection, array $post) : array {
+
+    // определяем массив правил для проверки полей формы
+    $rules = [
+        'email' => function($value) {
+            return validate_email($value);
+        },
+        'password' => function($value) {
+            return validate_availability($value);
+        },
+        'name' => function($value) {
+            return validate_availability($value);
+        }
+    ];
+
+// определяем массив для хранения ошибок валидации формы
+    $errors = [];
+
+// сохраняем в массив данные из полей формы
+    $user = filter_input_array(INPUT_POST, ['email' => FILTER_DEFAULT, 'password' => FILTER_DEFAULT,
+        'name' => FILTER_DEFAULT], true);
+
+// применяем правила валидации к каждому полю формы
+    foreach ($user as $key => $value) {
+        if (isset($rules[$key])) {
+            $rule = $rules[$key];
+            $errors[$key] = $rule($value);
+        }
+    }
+
+// очищаем массив ошибок от пустых значений
+    $errors = array_filter($errors);
+    return $errors;
+
+}
+
+/**
+ * Добавляет запись о новом пользователе в базу
+ *
+ * @param mysqli $connection Объект с данными для подключения
+ * @param array $new_user Массив с данными добавляемого пользователя
+ * @return bool При успешном добавлении возвращает true
+ */
+function add_user(mysqli $connection, array $new_user) : bool {
+    // подготовленное выражение для запроса на добавление нового пользователя в базу
+    $sql = "INSERT INTO users (email, password, name) VALUES (?, ?, ?)";
+    $stmt = db_get_prepare_stmt($connection, $sql, $new_user);
+    $result = mysqli_stmt_execute($stmt);
+    return $result;
+}
+
 ?>
