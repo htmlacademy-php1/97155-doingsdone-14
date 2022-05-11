@@ -342,7 +342,7 @@ function validate_email(string $value) : string | null {
  * @param string $email Email указаный пользователем
  * @return string Если такой email существует в базе, возвращает ошибку, иначе null
  */
-function check_email_existance(mysqli $connection, $email) : string | null {
+function check_email_existance(mysqli $connection, string $email) : string | null {
     $email = mysqli_real_escape_string($connection, $email);
     $sql = "SELECT id FROM users WHERE email = '$email'";
     $result = mysqli_query($connection, $sql);
@@ -416,6 +416,70 @@ function add_user(mysqli $connection, array $new_user) : bool {
     $stmt = db_get_prepare_stmt($connection, $sql, $new_user);
     $result = mysqli_stmt_execute($stmt);
     return $result;
+}
+
+/**
+ * Валидирует поля формы авторизации
+ *
+ * @param mysqli $connection Объект с данными для подключения к базе
+ * @param array $post Массив содержащий данные из полей формы
+ * @return array массив с ошибками
+ */
+function validate_authorization_form(mysqli $connection, array $post) : array {
+
+    // определяем массив правил для проверки полей формы
+    $rules = [
+        'email' => function($value) {
+            return validate_email($value);
+        },
+        'password' => function($value) {
+            return validate_availability($value);
+        }
+    ];
+
+// определяем массив для хранения ошибок валидации формы
+    $errors = [];
+
+// сохраняем в массив данные из полей формы
+    $user = filter_input_array(INPUT_POST, ['email' => FILTER_DEFAULT, 'password' => FILTER_DEFAULT], true);
+
+// применяем правила валидации к каждому полю формы
+    foreach ($user as $key => $value) {
+        if (isset($rules[$key])) {
+            $rule = $rules[$key];
+            $errors[$key] = $rule($value);
+        }
+    }
+
+// проверяем наличие введеннго email в базе
+    if (empty($errors)) {
+        $errors['email'] = check_email_existance($connection, $user['email']);
+    }
+
+// очищаем массив ошибок от пустых значений
+    $errors = array_filter($errors);
+    return $errors;
+
+}
+
+/**
+ * Ищет в базе пользователя с переданным email
+ *
+ * @param mysqli $connection Объект с данными для подключения
+ * @param string $email Email указаный пользователем
+ * @return array Если найдена запись с переданным email возвращает массив, иначе null
+ */
+function find_user(mysqli $connection, string $email) : array | null {
+    $email = mysqli_real_escape_string($connection, $email);
+    $sql = "SELECT * FROM users WHERE email = '$email'";
+    $result = mysqli_query($connection, $sql);
+    $user_data = mysqli_fetch_array($result, MYSQLI_ASSOC);
+
+    if ($user_data != false) {
+        return $user_data;
+    } else {
+        return null;
+    }
 }
 
 ?>

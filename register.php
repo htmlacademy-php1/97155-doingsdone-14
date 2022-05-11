@@ -6,7 +6,7 @@ require_once 'functions.php';
 $config = require_once 'config.php';
 $connection = db_connection($config['db']);
 
-// проверяем была ли отправка формы добавления новой задачи
+// проверяем была ли отправка формы регистрации
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // валидируем поля формы
     $errors = validate_registration_form($connection, $_POST);
