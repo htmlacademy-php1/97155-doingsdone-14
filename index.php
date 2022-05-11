@@ -1,9 +1,5 @@
 <?php
-session_start();
-$_SESSION['username'] = null;
-$username = $_SESSION['username'];
-
-
+require_once 'init.php';
 require_once 'functions.php';
 
 // показывать или нет выполненные задачи
@@ -26,13 +22,11 @@ foreach ($tasks as &$task) {
     $task['date_done'] = $date_done;
 }
 
-
 if ($username === null) {
     $page_content = include_template('guest.php', []);
 } else {
     $page_content = include_template('main.php', ['projects' => $projects, 'tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks, 'connection' => $connection]);
 }
-
 $layout_content = include_template('layout.php', ['content' => $page_content, 'title' => 'Дела в порядке', 'username' => $username]);
 print($layout_content);
 

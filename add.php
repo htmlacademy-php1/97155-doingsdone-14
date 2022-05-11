@@ -1,4 +1,5 @@
 <?php
+require_once 'init.php';
 require_once 'functions.php';
 
 // подключаемся к базе данных
@@ -33,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $page_content = include_template('add.php', ['projects' => $projects, 'connection' => $connection]);
 }
 
-$layout_content = include_template('layout.php', ['content' => $page_content, 'title' => 'Дела в порядке']);
+$layout_content = include_template('layout.php', ['content' => $page_content, 'title' => 'Дела в порядке', 'username' => $username]);
 print($layout_content);
 
 ?>
