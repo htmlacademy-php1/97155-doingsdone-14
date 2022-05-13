@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $page_content = include_template('add.php', ['projects' => $projects, 'connection' => $connection]);
 }
 
-$layout_content = include_template('layout.php', ['content' => $page_content, 'title' => 'Дела в порядке', 'username' => $username]);
+$layout_content = include_template('layout.php', ['content' => $page_content, 'title' => 'Дела в порядке']);
 print($layout_content);
 
 ?>

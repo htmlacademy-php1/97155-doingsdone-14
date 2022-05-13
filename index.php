@@ -22,12 +22,12 @@ foreach ($tasks as &$task) {
     $task['date_done'] = $date_done;
 }
 
-if ($username === null) {
-    $page_content = include_template('guest.php', []);
-} else {
+if (isset($_SESSION['username'])) {
     $page_content = include_template('main.php', ['projects' => $projects, 'tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks, 'connection' => $connection]);
+} else {
+    $page_content = include_template('guest.php', []);
 }
-$layout_content = include_template('layout.php', ['content' => $page_content, 'title' => 'Дела в порядке', 'username' => $username]);
+$layout_content = include_template('layout.php', ['content' => $page_content, 'title' => 'Дела в порядке']);
 print($layout_content);
 
 ?>
