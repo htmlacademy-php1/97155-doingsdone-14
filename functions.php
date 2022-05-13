@@ -14,7 +14,6 @@ function tasks_count (mysqli $connection, int $project_id) : int {
     return $tasks_count;
 }
 
-
 /**
  * Подключает шаблон, передает туда данные и возвращает итоговый HTML контент
  * @param string $name Путь к файлу шаблона относительно папки templates
@@ -95,9 +94,9 @@ function get_projects (mysqli $connection) : array {
  */
 function get_tasks (mysqli $connection, int $project_id) : array {
     if ($project_id === 0) {
-        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1";
+        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1 ORDER BY dt_add DESC";
     } else {
-        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1 AND project_id = $project_id";
+        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1 AND project_id = $project_id ORDER BY dt_add DESC";
     }
     $result_tasks = mysqli_query($connection, $sql_projects);
     $tasks = mysqli_fetch_all($result_tasks, MYSQLI_ASSOC);
@@ -117,6 +116,208 @@ function db_connection (array $db) : mysqli {
         mysqli_set_charset($connection, "utf8");
         return $connection;
     }
+}
+
+/**
+ * Создает подготовленное выражение на основе готового SQL запроса и переданных данных
+ *
+ * @param $link mysqli Ресурс соединения
+ * @param $sql string SQL запрос с плейсхолдерами вместо значений
+ * @param array $data Данные для вставки на место плейсхолдеров
+ *
+ * @return mysqli_stmt Подготовленное выражение
+ */
+function db_get_prepare_stmt($link, $sql, $data = []) {
+    $stmt = mysqli_prepare($link, $sql);
+
+    if ($stmt === false) {
+        $errorMsg = 'Не удалось инициализировать подготовленное выражение: ' . mysqli_error($link);
+        die($errorMsg);
+    }
+
+    if ($data) {
+        $types = '';
+        $stmt_data = [];
+
+        foreach ($data as $value) {
+            $type = 's';
+
+            if (is_int($value)) {
+                $type = 'i';
+            }
+            else if (is_string($value)) {
+                $type = 's';
+            }
+            else if (is_double($value)) {
+                $type = 'd';
+            }
+
+            if ($type) {
+                $types .= $type;
+                $stmt_data[] = $value;
+            }
+        }
+
+        $values = array_merge([$stmt, $types], $stmt_data);
+
+        $func = 'mysqli_stmt_bind_param';
+        $func(...$values);
+
+        if (mysqli_errno($link) > 0) {
+            $errorMsg = 'Не удалось связать подготовленное выражение с параметрами: ' . mysqli_error($link);
+            die($errorMsg);
+        }
+    }
+
+    return $stmt;
+}
+
+/**
+ * Проверяет существование указанного проекта
+ *
+ * @param $id int ID проекта
+ * @param $allowed_list array Массив существующих проектов
+ *
+ * @return string | null Если не находит проект, возвращает текст ошибки. Если находит, возвращает null
+ */
+function validate_project(int $id, array $allowed_list) : string | null {
+    if (!in_array($id, $allowed_list)) {
+        return "Указан несуществующий проект";
+    }
+
+    return null;
+}
+
+/**
+ * Проверяет заполненность поля
+ *
+ * @param $value string Содержимое поля
+ *
+ * @return string Если поле пустое, возвращает ошибку, иначе null
+ */
+function validate_availability(string $value) : string | null {
+    if ($value === "") {
+        return "Поле должно быть заполнено";
+    }
+
+    return null;
+}
+
+/**
+ * Проверяет переданную дату на соответствие формату 'ГГГГ-ММ-ДД'. Проверяет, что дата больше или равна текущей.
+ *
+ * @param string $date Дата в виде строки
+ *
+ * @return null если совпадает форматом и дата больше или равна текущей, иначе текст ошибки
+ */
+function is_date_valid(string $date) : null | string {
+    $format_to_check = 'Y-m-d';
+    $current_date = date('Y-m-d');
+    $current_date_time_obj = date_create_from_format($format_to_check, $current_date);
+    $date_time_obj = date_create_from_format($format_to_check, $date);
+
+    if ($date_time_obj < $current_date_time_obj) {
+        return "Дата должна быть больше или равна текущей";
+    }
+
+    if ($date_time_obj !== false && array_sum(date_get_last_errors()) === 0) {
+        return null;
+    }
+
+    return "Укажите дату в формате ГГГГ-ММ-ДД";
+}
+
+/**
+ * Возвращает значение поля формы
+ *
+ * @param string $name Наименование поля для которого нужно вернуть значение
+ *
+ * @return string содержимое поля формы
+ */
+function get_post_val(string $name) : string {
+    return filter_input(INPUT_POST, $name);
+}
+
+/**
+ * Валидирует поля формы добавления задачи
+ *
+ * @param mysqli $connection Объект с данными для подключения к базе
+ * @param array $post Массив содержащий данные из полей формы
+ * @return array массив с ошибками
+ */
+function validate_task_form(mysqli $connection, array $post) : array {
+    // получаем список проектов для пользователя
+    $projects = get_projects($connection);
+    $projects_ids = array_column($projects, 'id');
+
+    // определяем массив правил для проверки полей формы
+    $rules = [
+        'name' => function($value) {
+            return validate_availability($value);
+        },
+        'project_id' => function($value) use ($projects_ids) {
+            return validate_project($value, $projects_ids);
+        },
+        'date_done' => function($value) {
+            return is_date_valid($value);
+        }
+    ];
+
+// определяем массив для хранения ошибок валидации формы
+    $errors = [];
+
+// сохраняем в массив данные из полей формы
+    $task = filter_input_array(INPUT_POST, ['name' => FILTER_DEFAULT, 'project_id' => FILTER_DEFAULT,
+        'date_done' => FILTER_DEFAULT], true);
+
+// применяем правила валидации к каждому полю формы
+    foreach ($task as $key => $value) {
+        if (isset($rules[$key])) {
+            $rule = $rules[$key];
+            $errors[$key] = $rule($value);
+        }
+    }
+
+// очищаем массив ошибок от пустых значений
+    $errors = array_filter($errors);
+    return $errors;
+
+}
+
+/**
+ * Переносит загруженный файл в папку uploads
+ *
+ * @param array $files Массив с данными о загруженном файле
+ *
+ * @return string | null Возвращает пусть к загруженному файлу или null если файл не был загружен
+ */
+function upload_file(array $files) : string | null {
+    if ($files['file']['size'] != 0) {
+        $file_name = $files['file']['name'];
+        $file_path = __DIR__ . '/uploads/';
+        $file_url = '/uploads/' . $file_name;
+        if (move_uploaded_file($files['file']['tmp_name'], $file_path . $file_name) === false) {
+            exit('Ошибка при записи файла');
+        }
+    } else {
+        $file_url = null;
+    }
+    return $file_url;
+}
+
+/**
+ * Добавляет запись о новой задаче в базу
+ *
+ * @param mysqli $connection Объект с данными для подключения
+ * @param array $new_task Массив с данными добавляемой задачи
+ * @return bool При успешном добавлении возвращает true
+ */
+function add_task(mysqli $connection, array $new_task) : bool {
+    // подготовленное выражение для запроса на добавление новой задачи в базу
+    $sql = "INSERT INTO tasks (name, project_id, date_done, user_id, file) VALUES (?, ?, ?, 1, ?)";
+    $stmt = db_get_prepare_stmt($connection, $sql, $new_task);
+    $result = mysqli_stmt_execute($stmt);
+    return $result;
 }
 
 ?>
