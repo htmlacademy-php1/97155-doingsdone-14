@@ -418,4 +418,4 @@ function add_user(mysqli $connection, array $new_user) : bool {
     return $result;
 }
 
-?>
+

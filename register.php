@@ -1,9 +1,5 @@
 <?php
-require_once 'functions.php';
-
-// подключаемся к базе данных
-$config = require_once 'config.php';
-$connection = db_connection($config['db']);
+require_once 'init.php';
 
 // проверяем была ли отправка формы добавления новой задачи
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -22,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // если новый пользователь добавлен в базу успешно, переадрисоываем пользователя на главную
         if ($result) {
             header("Location: /");
+            exit();
         }
     }
 } else {
@@ -31,4 +28,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $layout_content = include_template('layout.php', ['content' => $page_content, 'title' => 'Дела в порядке']);
 print($layout_content);
 
-?>
