@@ -1,10 +1,5 @@
 <?php
 require_once 'init.php';
-require_once 'functions.php';
-
-// подключаемся к базе данных
-$config = require_once 'config.php';
-$connection = db_connection($config['db']);
 
 // проверяем была ли отправка формы регистрации
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -32,4 +27,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $layout_content = include_template('layout.php', ['content' => $page_content, 'title' => 'Дела в порядке']);
 print($layout_content);
 
-?>
