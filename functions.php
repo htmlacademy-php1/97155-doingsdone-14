@@ -476,4 +476,3 @@ function find_user(mysqli $connection, string $email) : array | null {
         return null;
     }
 }
-
