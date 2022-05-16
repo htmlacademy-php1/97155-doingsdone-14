@@ -1,12 +1,12 @@
 <?php
 require_once 'init.php';
 
-$projects = get_projects($connection);
+$projects = get_projects($connection, $_SESSION['id']);
 
 // проверяем была ли отправка формы добавления новой задачи
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // валидируем поля формы
-    $errors = validate_task_form($connection, $_POST);
+    $errors = validate_task_form($connection, $_POST, $_SESSION['id']);
 
     // проверяем если массив с ошибками не пустой, то передаем в шаблон ошибки
     if (count($errors)) {
@@ -23,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // если новая задача добавлена в базу успешно, переадрисоываем пользователя на главную
         if ($result) {
             header("Location: /");
+            exit();
         }
     }
 } else {
