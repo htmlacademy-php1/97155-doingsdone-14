@@ -1,12 +1,8 @@
 <?php
-require_once 'functions.php';
+require_once 'init.php';
 
 // показывать или нет выполненные задачи
 $show_complete_tasks = rand(0, 1);
-
-// подключаемся к базе данных
-$config = require_once 'config.php';
-$connection = db_connection($config['db']);
 
 // получаем список проектов для пользователя
 $projects = get_projects ($connection);
@@ -25,4 +21,4 @@ $page_content = include_template('main.php', ['projects' => $projects, 'tasks' =
 $layout_content = include_template('layout.php', ['content' => $page_content, 'title' => 'Дела в порядке']);
 print($layout_content);
 
-?>
+
