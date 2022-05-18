@@ -281,9 +281,7 @@ function validate_task_form(mysqli $connection, array $post, int $user_id) : arr
 
 /**
  * Переносит загруженный файл в папку uploads
- *
  * @param array $files Массив с данными о загруженном файле
- *
  * @return string | null Возвращает пусть к загруженному файлу или null если файл не был загружен
  */
 function upload_file(array $files) : string | null {
@@ -305,11 +303,12 @@ function upload_file(array $files) : string | null {
  *
  * @param mysqli $connection Объект с данными для подключения
  * @param array $new_task Массив с данными добавляемой задачи
+ * @param int $user_id ID пользователя
  * @return bool При успешном добавлении возвращает true
  */
-function add_task(mysqli $connection, array $new_task) : bool {
+function add_task(mysqli $connection, array $new_task, int $user_id) : bool {
     // подготовленное выражение для запроса на добавление новой задачи в базу
-    $sql = "INSERT INTO tasks (name, project_id, date_done, user_id, file) VALUES (?, ?, ?, 1, ?)";
+    $sql = "INSERT INTO tasks (name, project_id, date_done, user_id, file) VALUES (?, ?, ?, $user_id, ?)";
     $stmt = db_get_prepare_stmt($connection, $sql, $new_task);
     $result = mysqli_stmt_execute($stmt);
     return $result;
