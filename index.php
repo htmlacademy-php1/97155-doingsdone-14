@@ -4,7 +4,6 @@ require_once 'init.php';
 // показывать или нет выполненные задачи
 $show_complete_tasks = rand(0, 1);
 
-
 if (isset($_SESSION['name'])) {
     // получаем список проектов для пользователя
     $projects = get_projects ($connection, $_SESSION['id']);

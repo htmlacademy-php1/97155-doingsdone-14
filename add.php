@@ -37,5 +37,3 @@ if (isset($_SESSION['id'])) {
     header("HTTP/1.1 403 Forbidden");
     exit();
 }
-
-
