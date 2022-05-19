@@ -4,10 +4,11 @@
  * Считает количество задач в проекте
  * @param mysqli $connection ОБъект с данными для подключения к базе
  * @param int $project_id ID проекта
+ * @param int $user_id ID пользователя
  * @return int $tasks_count Количество задач в проекте
  */
-function tasks_count (mysqli $connection, int $project_id) : int {
-    $sql_tasks_count = "SELECT COUNT(id) FROM tasks WHERE project_id = $project_id AND user_id = 1";
+function tasks_count (mysqli $connection, int $project_id, int $user_id) : int {
+    $sql_tasks_count = "SELECT COUNT(id) FROM tasks WHERE project_id = $project_id AND user_id = $user_id";
     $result_tasks_count = mysqli_query($connection, $sql_tasks_count);
     $tasks_count_array = mysqli_fetch_all($result_tasks_count, MYSQLI_ASSOC);
     $tasks_count = (int)$tasks_count_array[0]['COUNT(id)'];
@@ -74,10 +75,11 @@ function date_convert (string | null $date) : string | null {
 /**
  * Возвращает массив проектов пользователя
  * @param mysqli $connection Объект с данными для подключения к базе
+ * @param int $user_id ID пользователя
  * @return array $projects Массив проектов пользователя
  */
-function get_projects (mysqli $connection) : array {
-    $sql_projects = "SELECT name, id FROM projects WHERE user_id = 1";
+function get_projects (mysqli $connection, int $user_id) : array {
+    $sql_projects = "SELECT name, id FROM projects WHERE user_id = $user_id";
     $result_projects = mysqli_query($connection, $sql_projects);
     $projects = mysqli_fetch_all($result_projects, MYSQLI_ASSOC);
     foreach ($projects as &$project) {
@@ -90,13 +92,14 @@ function get_projects (mysqli $connection) : array {
  * Возвращает массив задач пользователя
  * @param mysqli $connection Объект с данными для подключения к базе
  * @param int $project_id ID проекта
+ * @param int $user_id ID пользователя
  * @return array $tasks Массив задач пользователя
  */
-function get_tasks (mysqli $connection, int $project_id) : array {
+function get_tasks (mysqli $connection, int $project_id, int $user_id) : array {
     if ($project_id === 0) {
-        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1 ORDER BY dt_add DESC";
+        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = $user_id ORDER BY dt_add DESC";
     } else {
-        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = 1 AND project_id = $project_id ORDER BY dt_add DESC";
+        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = $user_id AND project_id = $project_id ORDER BY dt_add DESC";
     }
     $result_tasks = mysqli_query($connection, $sql_projects);
     $tasks = mysqli_fetch_all($result_tasks, MYSQLI_ASSOC);
@@ -174,10 +177,8 @@ function db_get_prepare_stmt($link, $sql, $data = []) {
 
 /**
  * Проверяет существование указанного проекта
- *
  * @param $id int ID проекта
  * @param $allowed_list array Массив существующих проектов
- *
  * @return string | null Если не находит проект, возвращает текст ошибки. Если находит, возвращает null
  */
 function validate_project(int $id, array $allowed_list) : string | null {
@@ -190,9 +191,7 @@ function validate_project(int $id, array $allowed_list) : string | null {
 
 /**
  * Проверяет заполненность поля
- *
  * @param $value string Содержимое поля
- *
  * @return string Если поле пустое, возвращает ошибку, иначе null
  */
 function validate_availability(string $value) : string | null {
@@ -205,9 +204,7 @@ function validate_availability(string $value) : string | null {
 
 /**
  * Проверяет переданную дату на соответствие формату 'ГГГГ-ММ-ДД'. Проверяет, что дата больше или равна текущей.
- *
  * @param string $date Дата в виде строки
- *
  * @return null если совпадает форматом и дата больше или равна текущей, иначе текст ошибки
  */
 function is_date_valid(string $date) : null | string {
@@ -229,9 +226,7 @@ function is_date_valid(string $date) : null | string {
 
 /**
  * Возвращает значение поля формы
- *
  * @param string $name Наименование поля для которого нужно вернуть значение
- *
  * @return string содержимое поля формы
  */
 function get_post_val(string $name) : string {
@@ -240,14 +235,14 @@ function get_post_val(string $name) : string {
 
 /**
  * Валидирует поля формы добавления задачи
- *
  * @param mysqli $connection Объект с данными для подключения к базе
  * @param array $post Массив содержащий данные из полей формы
+ * @param int $user_id ID пользователя
  * @return array массив с ошибками
  */
-function validate_task_form(mysqli $connection, array $post) : array {
+function validate_task_form(mysqli $connection, array $post, int $user_id) : array {
     // получаем список проектов для пользователя
-    $projects = get_projects($connection);
+    $projects = get_projects($connection, $user_id);
     $projects_ids = array_column($projects, 'id');
 
     // определяем массив правил для проверки полей формы
@@ -286,9 +281,7 @@ function validate_task_form(mysqli $connection, array $post) : array {
 
 /**
  * Переносит загруженный файл в папку uploads
- *
  * @param array $files Массив с данными о загруженном файле
- *
  * @return string | null Возвращает пусть к загруженному файлу или null если файл не был загружен
  */
 function upload_file(array $files) : string | null {
@@ -310,11 +303,12 @@ function upload_file(array $files) : string | null {
  *
  * @param mysqli $connection Объект с данными для подключения
  * @param array $new_task Массив с данными добавляемой задачи
+ * @param int $user_id ID пользователя
  * @return bool При успешном добавлении возвращает true
  */
-function add_task(mysqli $connection, array $new_task) : bool {
+function add_task(mysqli $connection, array $new_task, int $user_id) : bool {
     // подготовленное выражение для запроса на добавление новой задачи в базу
-    $sql = "INSERT INTO tasks (name, project_id, date_done, user_id, file) VALUES (?, ?, ?, 1, ?)";
+    $sql = "INSERT INTO tasks (name, project_id, date_done, user_id, file) VALUES (?, ?, ?, $user_id, ?)";
     $stmt = db_get_prepare_stmt($connection, $sql, $new_task);
     $result = mysqli_stmt_execute($stmt);
     return $result;
@@ -342,7 +336,7 @@ function validate_email(string $value) : string | null {
  * @param string $email Email указаный пользователем
  * @return string Если такой email существует в базе, возвращает ошибку, иначе null
  */
-function check_email_existance(mysqli $connection, $email) : string | null {
+function check_email_existance(mysqli $connection, string $email) : string | null {
     $email = mysqli_real_escape_string($connection, $email);
     $sql = "SELECT id FROM users WHERE email = '$email'";
     $result = mysqli_query($connection, $sql);
@@ -418,4 +412,66 @@ function add_user(mysqli $connection, array $new_user) : bool {
     return $result;
 }
 
+/**
+ * Валидирует поля формы авторизации
+ *
+ * @param mysqli $connection Объект с данными для подключения к базе
+ * @param array $post Массив содержащий данные из полей формы
+ * @return array массив с ошибками
+ */
+function validate_authorization_form(mysqli $connection, array $post) : array {
 
+    // определяем массив правил для проверки полей формы
+    $rules = [
+        'email' => function($value) {
+            return validate_email($value);
+        },
+        'password' => function($value) {
+            return validate_availability($value);
+        }
+    ];
+
+// определяем массив для хранения ошибок валидации формы
+    $errors = [];
+
+// сохраняем в массив данные из полей формы
+    $user = filter_input_array(INPUT_POST, ['email' => FILTER_DEFAULT, 'password' => FILTER_DEFAULT], true);
+
+// применяем правила валидации к каждому полю формы
+    foreach ($user as $key => $value) {
+        if (isset($rules[$key])) {
+            $rule = $rules[$key];
+            $errors[$key] = $rule($value);
+        }
+    }
+
+// проверяем наличие введеннго email в базе
+    if (empty($errors)) {
+        $errors['email'] = check_email_existance($connection, $user['email']);
+    }
+
+// очищаем массив ошибок от пустых значений
+    $errors = array_filter($errors);
+    return $errors;
+
+}
+
+/**
+ * Ищет в базе пользователя с переданным email
+ *
+ * @param mysqli $connection Объект с данными для подключения
+ * @param string $email Email указаный пользователем
+ * @return array Если найдена запись с переданным email возвращает массив, иначе null
+ */
+function find_user(mysqli $connection, string $email) : array | null {
+    $email = mysqli_real_escape_string($connection, $email);
+    $sql = "SELECT * FROM users WHERE email = '$email'";
+    $result = mysqli_query($connection, $sql);
+    $user_data = mysqli_fetch_array($result, MYSQLI_ASSOC);
+
+    if ($user_data != false) {
+        return $user_data;
+    } else {
+        return null;
+    }
+}

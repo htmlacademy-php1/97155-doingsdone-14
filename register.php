@@ -1,7 +1,7 @@
 <?php
 require_once 'init.php';
 
-// проверяем была ли отправка формы добавления новой задачи
+// проверяем была ли отправка формы регистрации
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // валидируем поля формы
     $errors = validate_registration_form($connection, $_POST);
@@ -27,4 +27,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $layout_content = include_template('layout.php', ['content' => $page_content, 'title' => 'Дела в порядке']);
 print($layout_content);
-
