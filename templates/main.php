@@ -41,7 +41,12 @@
                 </div>
 
                 <table class="tasks">
-                    <?php foreach ($tasks as $task): ?>
+                    <?php if ($tasks === null): ?>
+                        <tr class="tasks__item">
+                            <span>Ничего не найдено по вашему запросу</span>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($tasks as $task): ?>
                         <?php if ($task['done'] && $show_complete_tasks === 0): continue; ?><?php endif ?>
                         <tr class="tasks__item <?= (task_important($task['date_done']) && !$task['done']) ? 'task--important' : 'task' ?> <?= ($task['done']) ? 'task--completed' : '' ?>">
                             <td class="task__select">
@@ -62,6 +67,7 @@
                             <td class="task__controls"></td>
 
                         </tr>
-                    <?php endforeach; ?>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </table>
             </main>

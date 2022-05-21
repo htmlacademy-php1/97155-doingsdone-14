@@ -105,7 +105,6 @@ function get_tasks (mysqli $connection, int $project_id, int $user_id) : array {
 
 /**
  * Добавляет запись о новой задаче в базу
- *
  * @param mysqli $connection Объект с данными для подключения
  * @param array $new_task Массив с данными добавляемой задачи
  * @param int $user_id ID пользователя
@@ -121,7 +120,6 @@ function add_task(mysqli $connection, array $new_task, int $user_id) : bool {
 
 /**
  * Добавляет запись о новом пользователе в базу
- *
  * @param mysqli $connection Объект с данными для подключения
  * @param array $new_user Массив с данными добавляемого пользователя
  * @return bool При успешном добавлении возвращает true
@@ -170,4 +168,30 @@ function check_email_existance(mysqli $connection, string $email) : string | nul
     }
 
     return null;
+}
+
+/**
+ * Ищет задачи по фразе из формы поиска
+ * @param mysqli $connection Объект с данными для подключения
+ * @param string $search фраза введенная в форму поиска
+ * @param int $user_id ID пользователя
+ * @return array Если есть задачи с названием релевантным запросу возвращает массив, иначе null
+ */
+function get_search(mysqli $connection, string $search, int $user_id) : array | null {
+    $sql = "SELECT * FROM tasks WHERE user_id = $user_id AND MATCH (name) AGAINST (?)";
+    $stmt = db_get_prepare_stmt($connection, $sql, [$search]);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+    if ($tasks != false) {
+        // переводим формат даты выполнения задачи к виду dd-mm-yyyy
+        foreach ($tasks as &$task) {
+            $date_done = date_convert($task['date_done']);
+            $task['date_done'] = $date_done;
+        }
+        return $tasks;
+    } else {
+        return null;
+    }
 }
