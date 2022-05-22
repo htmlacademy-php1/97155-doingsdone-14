@@ -119,6 +119,21 @@ function add_task(mysqli $connection, array $new_task, int $user_id) : bool {
 }
 
 /**
+ * Добавляет запись о новом проекте в базу
+ * @param mysqli $connection Объект с данными для подключения
+ * @param array $new_project Массив с данными добавляемого проекта
+ * @param int $user_id ID пользователя
+ * @return bool При успешном добавлении возвращает true
+ */
+function add_project(mysqli $connection, array $new_project, int $user_id) : bool {
+    // подготовленное выражение для запроса на добавление нового проекта в базу
+    $sql = "INSERT INTO projects (name, user_id) VALUES (?, $user_id)";
+    $stmt = db_get_prepare_stmt($connection, $sql, $new_project);
+    $result = mysqli_stmt_execute($stmt);
+    return $result;
+}
+
+/**
  * Добавляет запись о новом пользователе в базу
  * @param mysqli $connection Объект с данными для подключения
  * @param array $new_user Массив с данными добавляемого пользователя
