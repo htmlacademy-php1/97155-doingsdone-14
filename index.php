@@ -10,13 +10,24 @@ if (isset($_SESSION['name'])) {
 
     // получаем список задач для пользователя
     $project_id = (int)filter_input(INPUT_GET, 'project_id');
-    $tasks = get_tasks ($connection, $project_id, $_SESSION['id']);
+    $tasks = get_tasks($connection, $project_id, $_SESSION['id']);
 
     // переводим формат даты выполнения задачи к виду dd-mm-yyyy
     foreach ($tasks as &$task) {
         $date_done = date_convert($task['date_done']);
         $task['date_done'] = $date_done;
     }
+
+    // если у задачи отмечается чекбокс, меняем статус задачи
+    if (isset($_GET['task_id'])) {
+        $status = change_task_status($connection, $_GET['task_id'], $_SESSION['id']);
+
+        if ($status) {
+            header("Location: /");
+            exit();
+        }
+    }
+
     // если была отправлена форма поиска, делаем поиск по задачам пользователя
     if (isset($_GET['q'])) {
         $search = get_search($connection, $_GET['q'], $_SESSION['id']);
