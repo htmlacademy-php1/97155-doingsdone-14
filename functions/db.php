@@ -273,8 +273,3 @@ function get_filter_tasks(mysqli $connection, string $filter, int $user_id) : ar
         return null;
     }
 }
-
-
-
-
-;

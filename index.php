@@ -21,7 +21,6 @@ if (isset($_SESSION['name'])) {
     // если у задачи отмечается чекбокс, меняем статус задачи
     if (isset($_GET['task_id'])) {
         $status = change_task_status($connection, $_GET['task_id'], $_SESSION['id']);
-
         if ($status) {
             header("Location: /");
             exit();
