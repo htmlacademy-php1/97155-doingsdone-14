@@ -234,3 +234,47 @@ function change_task_status(mysqli $connection, int $task_id, int $user_id) : bo
     }
     return $result_update;
 }
+
+/**
+ * Ищет задачи согласно выбранному фильтру
+ * @param mysqli $connection Объект с данными для подключения
+ * @param string $filter значение фильтра
+ * @param int $user_id ID пользователя
+ * @return array Если есть задачи с названием релевантным запросу возвращает массив, иначе null
+ */
+function get_filter_tasks(mysqli $connection, string $filter, int $user_id) : array | null {
+    $today = "SELECT * FROM doingsdone.tasks WHERE user_id = $user_id AND date_done = CURRENT_DATE()";
+    $tomorrow = "SELECT * FROM doingsdone.tasks WHERE user_id = $user_id AND date_done = DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY)";
+    $overdue = "SELECT * FROM doingsdone.tasks WHERE user_id = $user_id AND done = 0 AND date_done < NOW()";
+
+    if ($filter === 'today') {
+        $sql = $today;
+    }
+
+    if ($filter === 'tomorrow') {
+        $sql = $tomorrow;
+    }
+
+    if ($filter === 'overdue') {
+        $sql = $overdue;
+    }
+
+    $result = mysqli_query($connection, $sql);
+    $tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+    if ($tasks != false) {
+        // переводим формат даты выполнения задачи к виду dd-mm-yyyy
+        foreach ($tasks as &$task) {
+            $date_done = date_convert($task['date_done']);
+            $task['date_done'] = $date_done;
+        }
+        return $tasks;
+    } else {
+        return null;
+    }
+}
+
+
+
+
+;

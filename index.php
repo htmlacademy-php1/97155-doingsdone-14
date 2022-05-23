@@ -32,6 +32,10 @@ if (isset($_SESSION['name'])) {
     if (isset($_GET['q'])) {
         $search = get_search($connection, $_GET['q'], $_SESSION['id']);
         $page_content = include_template('main.php', ['projects' => $projects, 'tasks' => $search, 'show_complete_tasks' => $show_complete_tasks, 'connection' => $connection]);
+    // если пользователь кликнул на фильтр задач, ищем в базе подходящие задачи
+    } elseif (isset($_GET['filter'])) {
+        $filter = get_filter_tasks($connection, $_GET['filter'], $_SESSION['id']);
+        $page_content = include_template('main.php', ['projects' => $projects, 'tasks' => $filter, 'show_complete_tasks' => $show_complete_tasks, 'connection' => $connection]);
     } else {
         $page_content = include_template('main.php', ['projects' => $projects, 'tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks, 'connection' => $connection]);
     }
