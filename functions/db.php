@@ -24,7 +24,7 @@ function db_connection (array $db) : mysqli {
  *
  * @return mysqli_stmt Подготовленное выражение
  */
-function db_get_prepare_stmt($link, $sql, $data = []) {
+function db_get_prepare_stmt($link, $sql, $data = []) : mysqli_stmt {
     $stmt = mysqli_prepare($link, $sql);
 
     if ($stmt === false) {
@@ -78,6 +78,9 @@ function db_get_prepare_stmt($link, $sql, $data = []) {
 function get_projects (mysqli $connection, int $user_id) : array {
     $sql_projects = "SELECT name, id FROM projects WHERE user_id = $user_id";
     $result_projects = mysqli_query($connection, $sql_projects);
+    if ($result_projects === false) {
+        exit('Ошибка выполнения запроса к базе данных');
+    }
     $projects = mysqli_fetch_all($result_projects, MYSQLI_ASSOC);
     foreach ($projects as &$project) {
         settype($project['id'], "integer");
@@ -99,6 +102,9 @@ function get_tasks (mysqli $connection, int $project_id, int $user_id) : array {
         $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = $user_id AND project_id = $project_id ORDER BY dt_add DESC";
     }
     $result_tasks = mysqli_query($connection, $sql_projects);
+    if ($result_tasks === false) {
+        exit('Ошибка выполнения запроса к базе данных');
+    }
     $tasks = mysqli_fetch_all($result_tasks, MYSQLI_ASSOC);
     return $tasks;
 }
@@ -115,7 +121,11 @@ function add_task(mysqli $connection, array $new_task, int $user_id) : bool {
     $sql = "INSERT INTO tasks (name, project_id, date_done, user_id, file) VALUES (?, ?, ?, $user_id, ?)";
     $stmt = db_get_prepare_stmt($connection, $sql, $new_task);
     $result = mysqli_stmt_execute($stmt);
-    return $result;
+    if ($result === false) {
+        exit('Ошибка выполнения подготовленного выражения');
+    } else {
+        return $result;
+    }
 }
 
 /**
@@ -130,7 +140,11 @@ function add_user(mysqli $connection, array $new_user) : bool {
     $sql = "INSERT INTO users (email, password, name) VALUES (?, ?, ?)";
     $stmt = db_get_prepare_stmt($connection, $sql, $new_user);
     $result = mysqli_stmt_execute($stmt);
-    return $result;
+    if ($result === false) {
+        exit('Ошибка выполнения подготовленного выражения');
+    } else {
+        return $result;
+    }
 }
 
 /**
@@ -143,6 +157,9 @@ function find_user(mysqli $connection, string $email) : array | null {
     $email = mysqli_real_escape_string($connection, $email);
     $sql = "SELECT * FROM users WHERE email = '$email'";
     $result = mysqli_query($connection, $sql);
+    if ($result === false) {
+        exit('Ошибка выполнения запроса к базе данных');
+    }
     $user_data = mysqli_fetch_array($result, MYSQLI_ASSOC);
 
     if ($user_data != false) {
@@ -162,6 +179,9 @@ function check_email_existance(mysqli $connection, string $email) : string | nul
     $email = mysqli_real_escape_string($connection, $email);
     $sql = "SELECT id FROM users WHERE email = '$email'";
     $result = mysqli_query($connection, $sql);
+    if ($result === false) {
+        exit('Ошибка выполнения запроса к базе данных');
+    }
 
     if (mysqli_num_rows($result) > 0) {
         return "Пользователь с этим email уже зарегистрирован";
@@ -181,6 +201,9 @@ function get_search(mysqli $connection, string $search, int $user_id) : array | 
     $sql = "SELECT * FROM tasks WHERE user_id = $user_id AND MATCH (name) AGAINST (?)";
     $stmt = db_get_prepare_stmt($connection, $sql, [$search]);
     mysqli_stmt_execute($stmt);
+    if (mysqli_stmt_execute($stmt) === false) {
+        exit('Ошибка выполнения подготовленного выражения');
+    }
     $result = mysqli_stmt_get_result($stmt);
     $tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
 

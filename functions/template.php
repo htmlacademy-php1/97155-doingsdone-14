@@ -89,7 +89,7 @@ function get_post_val(string $name) : string {
 function upload_file(array $files) : string | null {
     if ($files['file']['size'] != 0) {
         $file_name = $files['file']['name'];
-        $file_path = __DIR__ . '/uploads/';
+        $file_path = __DIR__ . '/../uploads/';
         $file_url = '/uploads/' . $file_name;
         if (move_uploaded_file($files['file']['tmp_name'], $file_path . $file_name) === false) {
             exit('Ошибка при записи файла');
