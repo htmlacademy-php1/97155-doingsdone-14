@@ -1,0 +1,15 @@
+{
+    "name": "mike/97155-doingsdone-14",
+    "description": "Task Trecker",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Михаил Воронков",
+            "email": "redvoronik@yandex.ru"
+        }
+    ],
+    "require": {
+        "symfony/mailer": "^6.0"
+    }
+}
