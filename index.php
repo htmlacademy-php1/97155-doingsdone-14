@@ -17,8 +17,13 @@ if (isset($_SESSION['name'])) {
         $date_done = date_convert($task['date_done']);
         $task['date_done'] = $date_done;
     }
-
-    $page_content = include_template('main.php', ['projects' => $projects, 'tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks, 'connection' => $connection]);
+    // если была отправлена форма поиска, делаем поиск по задачам пользователя
+    if (isset($_GET['q'])) {
+        $search = get_search($connection, $_GET['q'], $_SESSION['id']);
+        $page_content = include_template('main.php', ['projects' => $projects, 'tasks' => $search, 'show_complete_tasks' => $show_complete_tasks, 'connection' => $connection]);
+    } else {
+        $page_content = include_template('main.php', ['projects' => $projects, 'tasks' => $tasks, 'show_complete_tasks' => $show_complete_tasks, 'connection' => $connection]);
+    }
 } else {
     $page_content = include_template('guest.php', []);
 }

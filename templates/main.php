@@ -19,8 +19,8 @@
             <main class="content__main">
                 <h2 class="content__main-heading">Список задач</h2>
 
-                <form class="search-form" action="index.php" method="post" autocomplete="off">
-                    <input class="search-form__input" type="text" name="" value="" placeholder="Поиск по задачам">
+                <form class="search-form" action="index.php" method="get" autocomplete="off">
+                    <input class="search-form__input" type="text" name="q" value="" placeholder="Поиск по задачам">
 
                     <input class="search-form__submit" type="submit" name="" value="Искать">
                 </form>
@@ -41,7 +41,12 @@
                 </div>
 
                 <table class="tasks">
-                    <?php foreach ($tasks as $task): ?>
+                    <?php if ($tasks === null): ?>
+                        <tr class="tasks__item">
+                            <span>Ничего не найдено по вашему запросу</span>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($tasks as $task): ?>
                         <?php if ($task['done'] && $show_complete_tasks === 0): continue; ?><?php endif ?>
                         <tr class="tasks__item <?= (task_important($task['date_done']) && !$task['done']) ? 'task--important' : 'task' ?> <?= ($task['done']) ? 'task--completed' : '' ?>">
                             <td class="task__select">
@@ -62,6 +67,7 @@
                             <td class="task__controls"></td>
 
                         </tr>
-                    <?php endforeach; ?>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </table>
             </main>

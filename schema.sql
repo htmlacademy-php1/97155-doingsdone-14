@@ -34,3 +34,4 @@ CREATE TABLE tasks (
 
 CREATE INDEX in_email ON users(email);
 CREATE INDEX in_name ON tasks(name);
+CREATE FULLTEXT INDEX search_name ON tasks(name);
