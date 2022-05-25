@@ -6,5 +6,12 @@ return [
         'user' => '',
         'password' => '',
         'database' => ''
+    ],
+    'mail' => [
+        'smtp' => '',
+        'login' => '',
+        'password' => '',
+        'encryption' => '',
+        'port' => ''
     ]
 ];
