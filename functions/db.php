@@ -97,9 +97,9 @@ function get_projects (mysqli $connection, int $user_id) : array {
  */
 function get_tasks (mysqli $connection, int $project_id, int $user_id) : array {
     if ($project_id === 0) {
-        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = $user_id ORDER BY dt_add DESC";
+        $sql_projects = "SELECT id, name, date_done, done, file, project_id FROM tasks WHERE user_id = $user_id ORDER BY dt_add DESC";
     } else {
-        $sql_projects = "SELECT name, date_done, done, file, project_id FROM tasks WHERE user_id = $user_id AND project_id = $project_id ORDER BY dt_add DESC";
+        $sql_projects = "SELECT id, name, date_done, done, file, project_id FROM tasks WHERE user_id = $user_id AND project_id = $project_id ORDER BY dt_add DESC";
     }
     $result_tasks = mysqli_query($connection, $sql_projects);
     if ($result_tasks === false) {
@@ -126,6 +126,21 @@ function add_task(mysqli $connection, array $new_task, int $user_id) : bool {
     } else {
         return $result;
     }
+}
+
+/**
+ * Добавляет запись о новом проекте в базу
+ * @param mysqli $connection Объект с данными для подключения
+ * @param array $new_project Массив с данными добавляемого проекта
+ * @param int $user_id ID пользователя
+ * @return bool При успешном добавлении возвращает true
+ */
+function add_project(mysqli $connection, array $new_project, int $user_id) : bool {
+    // подготовленное выражение для запроса на добавление нового проекта в базу
+    $sql = "INSERT INTO projects (name, user_id) VALUES (?, $user_id)";
+    $stmt = db_get_prepare_stmt($connection, $sql, $new_project);
+    $result = mysqli_stmt_execute($stmt);
+    return $result;
 }
 
 /**
@@ -205,6 +220,69 @@ function get_search(mysqli $connection, string $search, int $user_id) : array | 
         exit('Ошибка выполнения подготовленного выражения');
     }
     $result = mysqli_stmt_get_result($stmt);
+    $tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+    if ($tasks != false) {
+        // переводим формат даты выполнения задачи к виду dd-mm-yyyy
+        foreach ($tasks as &$task) {
+            $date_done = date_convert($task['date_done']);
+            $task['date_done'] = $date_done;
+        }
+        return $tasks;
+    } else {
+        return null;
+    }
+}
+
+/**
+ * Переключает статус выполнения у задачи
+ * @param mysqli $connection Объект с данными для подключения
+ * @param int $task_id ID задачи у которой меняем статус
+ * @param int $user_id ID пользователя
+ * @return bool При успешном добавлении возвращает true
+ */
+function change_task_status(mysqli $connection, int $task_id, int $user_id) : bool {
+    $sql = "SELECT * FROM tasks WHERE id = (?) AND user_id = $user_id";
+    $stmt = db_get_prepare_stmt($connection, $sql, [$task_id]);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $task = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+    if ($task[0]['done'] === 1) {
+        $sql_update = "UPDATE tasks SET done = 0 WHERE id = $task_id AND user_id = $user_id";
+        $result_update = mysqli_query($connection, $sql_update);
+    } else {
+        $sql_update = "UPDATE tasks SET done = 1 WHERE id = $task_id AND user_id = $user_id";
+        $result_update = mysqli_query($connection, $sql_update);
+    }
+    return $result_update;
+}
+
+/**
+ * Ищет задачи согласно выбранному фильтру
+ * @param mysqli $connection Объект с данными для подключения
+ * @param string $filter значение фильтра
+ * @param int $user_id ID пользователя
+ * @return array Если есть задачи с названием релевантным запросу возвращает массив, иначе null
+ */
+function get_filter_tasks(mysqli $connection, string $filter, int $user_id) : array | null {
+    $today = "SELECT * FROM doingsdone.tasks WHERE user_id = $user_id AND date_done = CURRENT_DATE()";
+    $tomorrow = "SELECT * FROM doingsdone.tasks WHERE user_id = $user_id AND date_done = DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY)";
+    $overdue = "SELECT * FROM doingsdone.tasks WHERE user_id = $user_id AND done = 0 AND date_done < NOW()";
+
+    if ($filter === 'today') {
+        $sql = $today;
+    }
+
+    if ($filter === 'tomorrow') {
+        $sql = $tomorrow;
+    }
+
+    if ($filter === 'overdue') {
+        $sql = $overdue;
+    }
+
+    $result = mysqli_query($connection, $sql);
     $tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
     if ($tasks != false) {

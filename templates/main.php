@@ -13,7 +13,7 @@
                 </nav>
 
                 <a class="button button--transparent button--plus content__side-button"
-                   href="pages/form-project.html" target="project_add">Добавить проект</a>
+                   href="/add-project.php" target="project_add">Добавить проект</a>
             </section>
 
             <main class="content__main">
@@ -28,9 +28,9 @@
                 <div class="tasks-controls">
                     <nav class="tasks-switch">
                         <a href="/" class="tasks-switch__item tasks-switch__item--active">Все задачи</a>
-                        <a href="/" class="tasks-switch__item">Повестка дня</a>
-                        <a href="/" class="tasks-switch__item">Завтра</a>
-                        <a href="/" class="tasks-switch__item">Просроченные</a>
+                        <a href="/?filter=today" class="tasks-switch__item">Повестка дня</a>
+                        <a href="/?filter=tomorrow" class="tasks-switch__item">Завтра</a>
+                        <a href="/?filter=overdue" class="tasks-switch__item">Просроченные</a>
                     </nav>
 
                     <label class="checkbox">
@@ -51,7 +51,7 @@
                         <tr class="tasks__item <?= (task_important($task['date_done']) && !$task['done']) ? 'task--important' : 'task' ?> <?= ($task['done']) ? 'task--completed' : '' ?>">
                             <td class="task__select">
                                 <label class="checkbox task__checkbox">
-                                    <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1">
+                                    <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="<?= $task['id'] ?>">
                                     <span class="checkbox__text"><?=strip_tags($task['name']);?></span>
                                 </label>
                             </td>

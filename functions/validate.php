@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Проверяет существование указанного проекта
  * @param $id int ID проекта
@@ -10,6 +9,22 @@
 function validate_project(int $id, array $allowed_list) : string | null {
     if (!in_array($id, $allowed_list)) {
         return "Указан несуществующий проект";
+    }
+
+    return null;
+}
+
+/**
+ * Проверяет существование имени проекта
+ * @param $project_name string Название проекта
+ * @param $allowed_list array Массив названий существующих проектов
+ * @return string | null Если не находит проект, возвращает текст ошибки. Если находит, возвращает null
+ */
+function validate_project_name(string $project_name, array $allowed_list) : string | null {
+    if (validate_availability($project_name) !== null) {
+        return validate_availability($project_name);
+    } elseif (in_array($project_name, $allowed_list)) {
+        return "Проект с таким именем уже существует";
     }
 
     return null;
@@ -192,6 +207,45 @@ function validate_authorization_form(mysqli $connection, array $post) : array {
 // проверяем наличие введеннго email в базе
     if (empty($errors)) {
         $errors['email'] = check_email_existance($connection, $user['email']);
+    }
+
+// очищаем массив ошибок от пустых значений
+    $errors = array_filter($errors);
+    return $errors;
+
+}
+
+/**
+ * Валидирует поля формы добавления проекта
+ * @param mysqli $connection Объект с данными для подключения к базе
+ * @param array $post Массив содержащий данные из полей формы
+ * @param int $user_id ID пользователя
+ * @return array массив с ошибками
+ */
+function validate_project_form(mysqli $connection, array $post, int $user_id) : array {
+    // получаем список проектов для пользователя
+    $projects = get_projects($connection, $user_id);
+    $projects_names = array_column($projects, 'name');
+
+    // определяем массив правил для проверки полей формы
+    $rules = [
+        'project_name' => function($value) use ($projects_names) {
+            return validate_project_name($value, $projects_names);
+        }
+    ];
+
+// определяем массив для хранения ошибок валидации формы
+    $errors = [];
+
+// сохраняем в массив данные из полей формы
+    $project = filter_input_array(INPUT_POST, ['project_name' => FILTER_DEFAULT], true);
+
+// применяем правила валидации
+    foreach ($project as $key => $value) {
+        if (isset($rules[$key])) {
+            $rule = $rules[$key];
+            $errors[$key] = $rule($value);
+        }
     }
 
 // очищаем массив ошибок от пустых значений
