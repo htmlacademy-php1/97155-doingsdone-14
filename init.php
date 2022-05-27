@@ -4,6 +4,11 @@ require_once 'functions/db.php';
 require_once 'functions/template.php';
 require_once 'functions/validate.php';
 
+if (!file_exists(__DIR__ . '/config.php')) {
+    exit ('Создайте файл config.php на основе файла config.sample.php и сконфигурируйте его');
+}
+
+$config = require __DIR__ . '/config.php';
+
 // подключаемся к базе данных
-$config = require_once 'config.php';
 $connection = db_connection($config['db']);

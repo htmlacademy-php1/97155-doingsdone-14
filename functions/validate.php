@@ -162,7 +162,7 @@ function validate_registration_form(mysqli $connection, array $post) : array {
     }
 
 // проверяем наличие введеннго email в базе
-    if (empty($errors)) {
+    if (empty($errors['email'])) {
         $errors['email'] = check_email_existance($connection, $user['email']);
     }
 
