@@ -11,38 +11,38 @@ $transport = Transport::fromDsn($dsn);
 
 $mailer = new Mailer($transport);
 
-$sql = "SELECT t.name, t.date_done, t.user_id, u.name AS user_name, u.email FROM tasks t LEFT JOIN users u ON t.user_id = u.id WHERE done = 0 AND date_done = CURRENT_DATE()";
+// получаем задачи для уведомлений
+$tasks = get_tasks_for_notify($connection);
 
-$result = mysqli_query($connection, $sql);
-if ($result && mysqli_num_rows($result)) {
-    $tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
+// подготавливаем массив получателей уведомлений
+foreach ($tasks as $task) {
+    $recipients[$task['user_id']]['email'] = $task['email'];
+    $recipients[$task['user_id']]['user_name'] = $task['user_name'];
+    $recipients[$task['user_id']]['tasks'][] = ['name' => $task['name'], 'date' => $task['date_done']];
 }
 
+// Формируем сообщение
+$message = new Email();
+foreach ($recipients as $recipient) {
+    $message->to($recipient['email']);
+    $message->from("keks@phpdemo.ru");
+    $message->subject("Уведомление от сервиса «Дела в порядке»");
+    if (count($recipient['tasks']) === 1) {
+        $recipient['tasks'][0]['date'] = date("d.m.Y");
+        $message_text = "Уважаемый, " . $recipient['user_name'] . "\n" . "У вас запланирована задача: \n";
+        $message_text = $message_text . "- " . $recipient['tasks'][0]['name'] . " на " . $recipient['tasks'][0]['date'];
 
-$users_ids = array_column($tasks, 'user_id');
-$users_ids = array_unique($users_ids);
-$users_ids = array_values($users_ids);
-
-$recipients = [];
-
-foreach ($users_ids as $users_id) {
-    foreach ($tasks as $key => $value) {
-        if ($value['user_id'] === $users_id) {
-            $sql_rec = "SELECT t.name, t.date_done, t.user_id, u.name AS user_name, u.email FROM tasks t LEFT JOIN users u ON t.user_id = u.id WHERE done = 0 AND date_done = CURRENT_DATE() AND user_id = $users_id";
-        $result_rec = mysqli_query($connection, $sql_rec);
-        $recipients = mysqli_fetch_all($result_rec, MYSQLI_ASSOC);
+    } else {
+        $message_text = "Уважаемый, " . $recipient['user_name'] . "\n" . "У вас запланированы задачи: \n";
+        foreach ($recipient['tasks'] as $task) {
+            $task['date'] = date("d.m.Y");
+            $message_text = $message_text . "- " . $task['name'] . " на " . $task['date'] . "\n";
         }
     }
+
+$message->text($message_text);
+
+    // Отправка сообщения
+    $mailer = new Mailer($transport);
+    $mailer->send($message);
 }
-
-
-// Формирование сообщения
-$message = new Email();
-$message->to("keks@htmlacademy.ru");
-$message->from("mail@giftube.academy");
-$message->subject("Просмотры вашей гифки");
-$message->text("Вашу гифку «Кот и пылесос» посмотрело больше 1 млн!");
-
-// Отправка сообщения
-$mailer = new Mailer($transport);
-$mailer->send($message);

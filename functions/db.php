@@ -296,3 +296,21 @@ function get_filter_tasks(mysqli $connection, string $filter, int $user_id) : ar
         return null;
     }
 }
+
+/**
+ * Получает задачи для отправки уведомлений
+ * @param mysqli $connection Объект с данными для подключения
+ * @return array Массив задач для отправки уведомлений, иначе null
+ */
+function get_tasks_for_notify(mysqli $connection) : array | null {
+    $sql = "SELECT t.id, t.name, t.date_done, t.user_id, u.name AS user_name, u.email FROM tasks t LEFT JOIN users u ON t.user_id = u.id WHERE done = 0 AND date_done = CURRENT_DATE()";
+
+    $result = mysqli_query($connection, $sql);
+    if ($result && mysqli_num_rows($result)) {
+        $tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        return $tasks;
+    } return null;
+}
+
+
+
