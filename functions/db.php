@@ -123,9 +123,7 @@ function add_task(mysqli $connection, array $new_task, int $user_id) : bool {
     $result = mysqli_stmt_execute($stmt);
     if ($result === false) {
         exit('Ошибка выполнения подготовленного выражения');
-    } else {
-        return $result;
-    }
+    } return $result;
 }
 
 /**
@@ -157,9 +155,7 @@ function add_user(mysqli $connection, array $new_user) : bool {
     $result = mysqli_stmt_execute($stmt);
     if ($result === false) {
         exit('Ошибка выполнения подготовленного выражения');
-    } else {
-        return $result;
-    }
+    } return $result;
 }
 
 /**
@@ -179,9 +175,7 @@ function find_user(mysqli $connection, string $email) : array | null {
 
     if ($user_data != false) {
         return $user_data;
-    } else {
-        return null;
-    }
+    } return null;
 }
 
 /**
@@ -229,9 +223,7 @@ function get_search(mysqli $connection, string $search, int $user_id) : array | 
             $task['date_done'] = $date_done;
         }
         return $tasks;
-    } else {
-        return null;
-    }
+    } return null;
 }
 
 /**
@@ -270,19 +262,9 @@ function get_filter_tasks(mysqli $connection, string $filter, int $user_id) : ar
     $tomorrow = "SELECT * FROM doingsdone.tasks WHERE user_id = $user_id AND date_done = DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY)";
     $overdue = "SELECT * FROM doingsdone.tasks WHERE user_id = $user_id AND done = 0 AND date_done < NOW()";
 
-    if ($filter === 'today') {
-        $sql = $today;
-    }
+    $sql = ['today' => $today, 'tomorrow' => $tomorrow, 'overdue' => $overdue];
 
-    if ($filter === 'tomorrow') {
-        $sql = $tomorrow;
-    }
-
-    if ($filter === 'overdue') {
-        $sql = $overdue;
-    }
-
-    $result = mysqli_query($connection, $sql);
+    $result = mysqli_query($connection, $sql[$filter]);
     $tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
     if ($tasks != false) {
@@ -292,7 +274,23 @@ function get_filter_tasks(mysqli $connection, string $filter, int $user_id) : ar
             $task['date_done'] = $date_done;
         }
         return $tasks;
-    } else {
-        return null;
-    }
+    } return null;
 }
+
+/**
+ * Получает задачи для отправки уведомлений
+ * @param mysqli $connection Объект с данными для подключения
+ * @return array Массив задач для отправки уведомлений, иначе null
+ */
+function get_tasks_for_notify(mysqli $connection) : array | null {
+    $sql = "SELECT t.id, t.name, t.date_done, t.user_id, u.name AS user_name, u.email FROM tasks t LEFT JOIN users u ON t.user_id = u.id WHERE done = 0 AND date_done = CURRENT_DATE()";
+
+    $result = mysqli_query($connection, $sql);
+    if ($result && mysqli_num_rows($result)) {
+        $tasks = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        return $tasks;
+    } return null;
+}
+
+
+

@@ -14,15 +14,10 @@ if (isset($_SESSION['id'])) {
             $page_content = include_template('add-project.php', ['projects' => $projects, 'errors' => $errors, 'connection' => $connection]);
         } else {
             $new_project = $_POST;
-
-            // добавляем задачу в базу
+            // добавляем проект в базу
             $result = add_project($connection, $new_project, $_SESSION['id']);
-
-            // если новый проект добавлен в базу успешно, переадрисоываем пользователя на главную
-            if ($result) {
-                header("Location: /add-project.php");
-                exit();
-            }
+            header("Location: /add-project.php");
+            exit();
         }
     } else {
         $page_content = include_template('add-project.php', ['projects' => $projects, 'connection' => $connection]);
